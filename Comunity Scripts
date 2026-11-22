@@ -56,6 +56,645 @@ local function notify(title, content, d)
 	end)
 end
 
+----------------------------------------------------------------------
+-- IDIOMA: espera 3 s, detecta el idioma del usuario y lo aplica al menu
+-- Idiomas incluidos: es, en, pt, fr, de (cualquier otro usa ingles).
+-- Para agregar uno: copia un bloque de STR, cambia la clave (ej. it) y traduce.
+----------------------------------------------------------------------
+local LANG = "es"
+local STR = {
+	es = {
+		lang_name = "Español",
+		lang_title = "Idioma",
+		lang_detected = "Idioma detectado: %s",
+		t_error = "Error",
+		admin_auth_fail = "No se pudo autenticar en Firebase para activar admin.",
+		admin_mode = "Modo admin",
+		admin_on = "Admin activado automaticamente (UID: %s).",
+		admin_warn = "Advertencia admin",
+		admin_reg_fail = "No se pudo registrar en Firebase (codigo %s). Revisa las reglas.",
+		published = "Publicado: ",
+		now_preview = "ahora (vista previa)",
+		edited = "editado",
+		fb_login_fail = "No se pudo iniciar sesion en Firebase.",
+		vote_fail = "No se pudo registrar tu voto (codigo %s).",
+		no_image = "Sin imagen",
+		no_name = "(sin nombre)",
+		script_preview_ph = "(el texto del script aparecera aqui)",
+		use_copy_full = "... (usa Copiar script para el texto completo)",
+		direct_execute = "Direct execute",
+		running = "Ejecutando...",
+		running_msg = [["%s" se esta ejecutando.]],
+		run_error = "Error al ejecutar",
+		script_error = "Error en el script",
+		copy_script = "Copiar script",
+		copied = "Copiado",
+		copied_msg = [["%s" copiado al portapapeles.]],
+		unavailable = "No disponible",
+		no_clipboard = "Tu executor no soporta portapapeles.",
+		delete = "Eliminar",
+		delete_admin = "Eliminar (admin)",
+		edit = "Editar",
+		sure_tap = "Seguro? Toca otra vez",
+		deleting = "Eliminando...",
+		deleted = "Eliminado",
+		deleted_own = "Tu script fue eliminado.",
+		deleted_admin = "Script eliminado (admin).",
+		delete_fail = "No se pudo eliminar (codigo %s).",
+		views_execs = "Vistas: %d  |  Ejec: %d",
+		delete_msg_admin = "Borrar (admin)",
+		erasing = "Borrando...",
+		msg_deleted = "Mensaje borrado.",
+		msg_delete_fail = "No se pudo borrar (codigo %s).",
+		window_name = "Comunidad de Scripts",
+		tab_feed = "Comunidad",
+		tab_create = "Crear script",
+		feed_title = "Scripts de la comunidad",
+		active_users = "Usuarios activos: %s",
+		refresh = "Actualizar",
+		refreshing = "Actualizando...",
+		sort_exec = "Mayor ejecucion",
+		sort_views = "Mayor vistas",
+		sort_recent = "Recien publicado",
+		sort_oldest = "Mas antiguo",
+		sort_dislikes = "Mas dislikes",
+		sort_likes = "Mas likes",
+		sort_by = "Ordenar por:",
+		search_ph = "Buscar script o autor...",
+		no_scripts = "Aun no hay scripts. Se el primero en publicar.",
+		no_results = "No hay scripts con esa busqueda.",
+		connect_fail = "No se pudo conectar (%s). Revisa DB_URL, API_KEY y las reglas.",
+		back = "< Volver",
+		script_chat = "Chat de este script",
+		editing_msg = "Editando tu mensaje...",
+		cancel = "Cancelar",
+		msg_ph = "Escribe un mensaje (max. 300)",
+		send = "Enviar",
+		no_messages = "Aun no hay mensajes. Escribe el primero.",
+		empty_msg = "Mensaje vacio",
+		empty_msg_d = "Escribe algo primero.",
+		too_long = "Muy largo",
+		max_300 = "Maximo 300 caracteres.",
+		wait_t = "Espera",
+		wait_3s = "Envia mensajes con 3 segundos de diferencia.",
+		send_fail = "No se pudo enviar/editar (codigo %s).",
+		new_script = "Nuevo script",
+		checking = "Comprobando...",
+		not_editing = "No estas editando ningun script",
+		f_name = "Nombre",
+		f_name_ph = "Max. 50 caracteres",
+		f_img = "ID de imagen",
+		f_img_ph = "Ej: 1234567890",
+		f_code = "Texto del script",
+		f_code_ph = "Pega tu script aqui...",
+		preview = "Vista previa",
+		err_no_name = "Falta el nombre",
+		err_no_name_d = "Escribe un nombre para tu script.",
+		err_no_script = "Falta el script",
+		err_no_script_d = "Pega el texto del script.",
+		err_invalid = "Script invalido",
+		err_invalid_d = "Debe tener codigo ejecutable real. No se aceptan solo comentarios ni letras sueltas.",
+		err_too_long_d = "El script no puede superar 50.000 caracteres.",
+		editing_label = [[Editando: "%s" - pulsa "Guardar edicion"]],
+		edit_mode = "Modo edicion",
+		edit_mode_msg = [[Ve a "Crear script", cambia lo que quieras y pulsa "Guardar edicion".]],
+		btn_publish = "Publicar script",
+		btn_save_edit = "Guardar edicion",
+		btn_cancel_edit = "Cancelar edicion",
+		already_editing = "Estas editando",
+		already_editing_d = "Guarda o cancela la edicion antes de publicar uno nuevo.",
+		wait_24h = "Aun no pasaron 24 horas desde tu ultimo script.",
+		fb_login_fail_long = "No se pudo iniciar sesion en Firebase. Revisa API_KEY y que Authentication > Anonimo este activado.",
+		published_t = "Publicado",
+		published_d = "Tu script ya esta en la comunidad.",
+		publish_fail = "No se pudo publicar",
+		publish_fail_d = "Codigo %s. Puede que no hayan pasado 24 h o las reglas lo rechazaron.",
+		no_edit = "Sin edicion",
+		no_edit_d = [[Pulsa "Editar" en uno de tus scripts primero.]],
+		edited_t = "Editado",
+		edited_d = "Tu script se actualizo.",
+		edit_fail = "No se pudo editar",
+		edit_fail_d = "Codigo %s. Solo puedes editar tus propios scripts.",
+		cooldown = "Podras publicar otro script en %02d:%02d:%02d",
+		can_publish = "Ya puedes publicar un script",
+	},
+
+	en = {
+		lang_name = "English",
+		lang_title = "Language",
+		lang_detected = "Language detected: %s",
+		t_error = "Error",
+		admin_auth_fail = "Could not authenticate with Firebase to enable admin.",
+		admin_mode = "Admin mode",
+		admin_on = "Admin enabled automatically (UID: %s).",
+		admin_warn = "Admin warning",
+		admin_reg_fail = "Could not register in Firebase (code %s). Check the rules.",
+		published = "Published: ",
+		now_preview = "now (preview)",
+		edited = "edited",
+		fb_login_fail = "Could not sign in to Firebase.",
+		vote_fail = "Could not register your vote (code %s).",
+		no_image = "No image",
+		no_name = "(no name)",
+		script_preview_ph = "(the script text will appear here)",
+		use_copy_full = "... (use Copy script for the full text)",
+		direct_execute = "Direct execute",
+		running = "Running...",
+		running_msg = [["%s" is running.]],
+		run_error = "Error while running",
+		script_error = "Error in the script",
+		copy_script = "Copy script",
+		copied = "Copied",
+		copied_msg = [["%s" copied to the clipboard.]],
+		unavailable = "Not available",
+		no_clipboard = "Your executor does not support the clipboard.",
+		delete = "Delete",
+		delete_admin = "Delete (admin)",
+		edit = "Edit",
+		sure_tap = "Sure? Tap again",
+		deleting = "Deleting...",
+		deleted = "Deleted",
+		deleted_own = "Your script was deleted.",
+		deleted_admin = "Script deleted (admin).",
+		delete_fail = "Could not delete (code %s).",
+		views_execs = "Views: %d  |  Runs: %d",
+		delete_msg_admin = "Delete (admin)",
+		erasing = "Deleting...",
+		msg_deleted = "Message deleted.",
+		msg_delete_fail = "Could not delete (code %s).",
+		window_name = "Script Community",
+		tab_feed = "Community",
+		tab_create = "Create script",
+		feed_title = "Community scripts",
+		active_users = "Active users: %s",
+		refresh = "Refresh",
+		refreshing = "Refreshing...",
+		sort_exec = "Most executed",
+		sort_views = "Most viewed",
+		sort_recent = "Recently published",
+		sort_oldest = "Oldest",
+		sort_dislikes = "Most dislikes",
+		sort_likes = "Most likes",
+		sort_by = "Sort by:",
+		search_ph = "Search script or author...",
+		no_scripts = "There are no scripts yet. Be the first to publish.",
+		no_results = "No scripts match that search.",
+		connect_fail = "Could not connect (%s). Check DB_URL, API_KEY and the rules.",
+		back = "< Back",
+		script_chat = "Chat for this script",
+		editing_msg = "Editing your message...",
+		cancel = "Cancel",
+		msg_ph = "Write a message (max. 300)",
+		send = "Send",
+		no_messages = "No messages yet. Write the first one.",
+		empty_msg = "Empty message",
+		empty_msg_d = "Write something first.",
+		too_long = "Too long",
+		max_300 = "Maximum 300 characters.",
+		wait_t = "Wait",
+		wait_3s = "Send messages at least 3 seconds apart.",
+		send_fail = "Could not send/edit (code %s).",
+		new_script = "New script",
+		checking = "Checking...",
+		not_editing = "You are not editing any script",
+		f_name = "Name",
+		f_name_ph = "Max. 50 characters",
+		f_img = "Image ID",
+		f_img_ph = "E.g.: 1234567890",
+		f_code = "Script text",
+		f_code_ph = "Paste your script here...",
+		preview = "Preview",
+		err_no_name = "Name missing",
+		err_no_name_d = "Write a name for your script.",
+		err_no_script = "Script missing",
+		err_no_script_d = "Paste the script text.",
+		err_invalid = "Invalid script",
+		err_invalid_d = "It must contain real executable code. Comments or stray letters alone are not accepted.",
+		err_too_long_d = "The script cannot exceed 50,000 characters.",
+		editing_label = [[Editing: "%s" - press "Save edit"]],
+		edit_mode = "Edit mode",
+		edit_mode_msg = [[Go to "Create script", change what you want and press "Save edit".]],
+		btn_publish = "Publish script",
+		btn_save_edit = "Save edit",
+		btn_cancel_edit = "Cancel edit",
+		already_editing = "You are editing",
+		already_editing_d = "Save or cancel the edit before publishing a new one.",
+		wait_24h = "24 hours have not passed since your last script yet.",
+		fb_login_fail_long = "Could not sign in to Firebase. Check API_KEY and that Authentication > Anonymous is enabled.",
+		published_t = "Published",
+		published_d = "Your script is now in the community.",
+		publish_fail = "Could not publish",
+		publish_fail_d = "Code %s. 24 h may not have passed or the rules rejected it.",
+		no_edit = "No edit",
+		no_edit_d = [[Press "Edit" on one of your scripts first.]],
+		edited_t = "Edited",
+		edited_d = "Your script was updated.",
+		edit_fail = "Could not edit",
+		edit_fail_d = "Code %s. You can only edit your own scripts.",
+		cooldown = "You can publish another script in %02d:%02d:%02d",
+		can_publish = "You can publish a script now",
+	},
+
+	pt = {
+		lang_name = "Português",
+		lang_title = "Idioma",
+		lang_detected = "Idioma detectado: %s",
+		t_error = "Erro",
+		admin_auth_fail = "Não foi possível autenticar no Firebase para ativar o admin.",
+		admin_mode = "Modo admin",
+		admin_on = "Admin ativado automaticamente (UID: %s).",
+		admin_warn = "Aviso de admin",
+		admin_reg_fail = "Não foi possível registrar no Firebase (código %s). Verifique as regras.",
+		published = "Publicado: ",
+		now_preview = "agora (pré-visualização)",
+		edited = "editado",
+		fb_login_fail = "Não foi possível entrar no Firebase.",
+		vote_fail = "Não foi possível registrar seu voto (código %s).",
+		no_image = "Sem imagem",
+		no_name = "(sem nome)",
+		script_preview_ph = "(o texto do script aparecerá aqui)",
+		use_copy_full = "... (use Copiar script para o texto completo)",
+		direct_execute = "Direct execute",
+		running = "Executando...",
+		running_msg = [["%s" está sendo executado.]],
+		run_error = "Erro ao executar",
+		script_error = "Erro no script",
+		copy_script = "Copiar script",
+		copied = "Copiado",
+		copied_msg = [["%s" copiado para a área de transferência.]],
+		unavailable = "Indisponível",
+		no_clipboard = "Seu executor não suporta a área de transferência.",
+		delete = "Excluir",
+		delete_admin = "Excluir (admin)",
+		edit = "Editar",
+		sure_tap = "Certeza? Toque de novo",
+		deleting = "Excluindo...",
+		deleted = "Excluído",
+		deleted_own = "Seu script foi excluído.",
+		deleted_admin = "Script excluído (admin).",
+		delete_fail = "Não foi possível excluir (código %s).",
+		views_execs = "Views: %d  |  Exec: %d",
+		delete_msg_admin = "Apagar (admin)",
+		erasing = "Apagando...",
+		msg_deleted = "Mensagem apagada.",
+		msg_delete_fail = "Não foi possível apagar (código %s).",
+		window_name = "Comunidade de Scripts",
+		tab_feed = "Comunidade",
+		tab_create = "Criar script",
+		feed_title = "Scripts da comunidade",
+		active_users = "Usuários ativos: %s",
+		refresh = "Atualizar",
+		refreshing = "Atualizando...",
+		sort_exec = "Mais executados",
+		sort_views = "Mais vistos",
+		sort_recent = "Recém-publicado",
+		sort_oldest = "Mais antigos",
+		sort_dislikes = "Mais dislikes",
+		sort_likes = "Mais likes",
+		sort_by = "Ordenar por:",
+		search_ph = "Buscar script ou autor...",
+		no_scripts = "Ainda não há scripts. Seja o primeiro a publicar.",
+		no_results = "Nenhum script encontrado para essa busca.",
+		connect_fail = "Não foi possível conectar (%s). Verifique DB_URL, API_KEY e as regras.",
+		back = "< Voltar",
+		script_chat = "Chat deste script",
+		editing_msg = "Editando sua mensagem...",
+		cancel = "Cancelar",
+		msg_ph = "Escreva uma mensagem (máx. 300)",
+		send = "Enviar",
+		no_messages = "Ainda não há mensagens. Escreva a primeira.",
+		empty_msg = "Mensagem vazia",
+		empty_msg_d = "Escreva algo primeiro.",
+		too_long = "Muito longo",
+		max_300 = "Máximo de 300 caracteres.",
+		wait_t = "Aguarde",
+		wait_3s = "Envie mensagens com 3 segundos de intervalo.",
+		send_fail = "Não foi possível enviar/editar (código %s).",
+		new_script = "Novo script",
+		checking = "Verificando...",
+		not_editing = "Você não está editando nenhum script",
+		f_name = "Nome",
+		f_name_ph = "Máx. 50 caracteres",
+		f_img = "ID da imagem",
+		f_img_ph = "Ex: 1234567890",
+		f_code = "Texto do script",
+		f_code_ph = "Cole seu script aqui...",
+		preview = "Pré-visualização",
+		err_no_name = "Falta o nome",
+		err_no_name_d = "Escreva um nome para o seu script.",
+		err_no_script = "Falta o script",
+		err_no_script_d = "Cole o texto do script.",
+		err_invalid = "Script inválido",
+		err_invalid_d = "Precisa ter código executável real. Não são aceitos apenas comentários nem letras soltas.",
+		err_too_long_d = "O script não pode ultrapassar 50.000 caracteres.",
+		editing_label = [[Editando: "%s" - toque em "Salvar edição"]],
+		edit_mode = "Modo de edição",
+		edit_mode_msg = [[Vá para "Criar script", altere o que quiser e toque em "Salvar edição".]],
+		btn_publish = "Publicar script",
+		btn_save_edit = "Salvar edição",
+		btn_cancel_edit = "Cancelar edição",
+		already_editing = "Você está editando",
+		already_editing_d = "Salve ou cancele a edição antes de publicar um novo.",
+		wait_24h = "Ainda não se passaram 24 horas desde o seu último script.",
+		fb_login_fail_long = "Não foi possível entrar no Firebase. Verifique a API_KEY e se Authentication > Anônimo está ativado.",
+		published_t = "Publicado",
+		published_d = "Seu script já está na comunidade.",
+		publish_fail = "Não foi possível publicar",
+		publish_fail_d = "Código %s. Talvez não tenham passado 24 h ou as regras o rejeitaram.",
+		no_edit = "Sem edição",
+		no_edit_d = [[Toque em "Editar" em um dos seus scripts primeiro.]],
+		edited_t = "Editado",
+		edited_d = "Seu script foi atualizado.",
+		edit_fail = "Não foi possível editar",
+		edit_fail_d = "Código %s. Você só pode editar seus próprios scripts.",
+		cooldown = "Você poderá publicar outro script em %02d:%02d:%02d",
+		can_publish = "Você já pode publicar um script",
+	},
+
+	fr = {
+		lang_name = "Français",
+		lang_title = "Langue",
+		lang_detected = "Langue détectée : %s",
+		t_error = "Erreur",
+		admin_auth_fail = "Impossible de s'authentifier sur Firebase pour activer l'admin.",
+		admin_mode = "Mode admin",
+		admin_on = "Admin activé automatiquement (UID : %s).",
+		admin_warn = "Avertissement admin",
+		admin_reg_fail = "Impossible de s'enregistrer sur Firebase (code %s). Vérifiez les règles.",
+		published = "Publié : ",
+		now_preview = "à l'instant (aperçu)",
+		edited = "modifié",
+		fb_login_fail = "Impossible de se connecter à Firebase.",
+		vote_fail = "Impossible d'enregistrer votre vote (code %s).",
+		no_image = "Sans image",
+		no_name = "(sans nom)",
+		script_preview_ph = "(le texte du script apparaîtra ici)",
+		use_copy_full = "... (utilisez Copier le script pour le texte complet)",
+		direct_execute = "Direct execute",
+		running = "Exécution...",
+		running_msg = [["%s" est en cours d'exécution.]],
+		run_error = "Erreur d'exécution",
+		script_error = "Erreur dans le script",
+		copy_script = "Copier le script",
+		copied = "Copié",
+		copied_msg = [["%s" copié dans le presse-papiers.]],
+		unavailable = "Indisponible",
+		no_clipboard = "Votre executor ne prend pas en charge le presse-papiers.",
+		delete = "Supprimer",
+		delete_admin = "Supprimer (admin)",
+		edit = "Modifier",
+		sure_tap = "Sûr ? Touchez encore",
+		deleting = "Suppression...",
+		deleted = "Supprimé",
+		deleted_own = "Votre script a été supprimé.",
+		deleted_admin = "Script supprimé (admin).",
+		delete_fail = "Impossible de supprimer (code %s).",
+		views_execs = "Vues : %d  |  Exéc : %d",
+		delete_msg_admin = "Effacer (admin)",
+		erasing = "Effacement...",
+		msg_deleted = "Message effacé.",
+		msg_delete_fail = "Impossible d'effacer (code %s).",
+		window_name = "Communauté de Scripts",
+		tab_feed = "Communauté",
+		tab_create = "Créer un script",
+		feed_title = "Scripts de la communauté",
+		active_users = "Utilisateurs actifs : %s",
+		refresh = "Actualiser",
+		refreshing = "Actualisation...",
+		sort_exec = "Plus exécutés",
+		sort_views = "Plus vus",
+		sort_recent = "Publiés récemment",
+		sort_oldest = "Plus anciens",
+		sort_dislikes = "Plus de dislikes",
+		sort_likes = "Plus de likes",
+		sort_by = "Trier par :",
+		search_ph = "Chercher un script ou un auteur...",
+		no_scripts = "Aucun script pour le moment. Soyez le premier à publier.",
+		no_results = "Aucun script ne correspond à cette recherche.",
+		connect_fail = "Connexion impossible (%s). Vérifiez DB_URL, API_KEY et les règles.",
+		back = "< Retour",
+		script_chat = "Chat de ce script",
+		editing_msg = "Modification de votre message...",
+		cancel = "Annuler",
+		msg_ph = "Écrivez un message (max. 300)",
+		send = "Envoyer",
+		no_messages = "Aucun message pour le moment. Écrivez le premier.",
+		empty_msg = "Message vide",
+		empty_msg_d = "Écrivez d'abord quelque chose.",
+		too_long = "Trop long",
+		max_300 = "Maximum 300 caractères.",
+		wait_t = "Patientez",
+		wait_3s = "Envoyez les messages à 3 secondes d'intervalle.",
+		send_fail = "Impossible d'envoyer/modifier (code %s).",
+		new_script = "Nouveau script",
+		checking = "Vérification...",
+		not_editing = "Vous ne modifiez aucun script",
+		f_name = "Nom",
+		f_name_ph = "Max. 50 caractères",
+		f_img = "ID de l'image",
+		f_img_ph = "Ex : 1234567890",
+		f_code = "Texte du script",
+		f_code_ph = "Collez votre script ici...",
+		preview = "Aperçu",
+		err_no_name = "Nom manquant",
+		err_no_name_d = "Écrivez un nom pour votre script.",
+		err_no_script = "Script manquant",
+		err_no_script_d = "Collez le texte du script.",
+		err_invalid = "Script invalide",
+		err_invalid_d = "Il doit contenir du vrai code exécutable. Les commentaires ou lettres isolées seuls ne sont pas acceptés.",
+		err_too_long_d = "Le script ne peut pas dépasser 50 000 caractères.",
+		editing_label = [[Modification : "%s" - appuyez sur "Enregistrer la modification"]],
+		edit_mode = "Mode modification",
+		edit_mode_msg = [[Allez dans "Créer un script", changez ce que vous voulez et appuyez sur "Enregistrer la modification".]],
+		btn_publish = "Publier le script",
+		btn_save_edit = "Enregistrer la modification",
+		btn_cancel_edit = "Annuler la modification",
+		already_editing = "Vous êtes en modification",
+		already_editing_d = "Enregistrez ou annulez la modification avant d'en publier un nouveau.",
+		wait_24h = "24 heures ne se sont pas encore écoulées depuis votre dernier script.",
+		fb_login_fail_long = "Impossible de se connecter à Firebase. Vérifiez API_KEY et que Authentication > Anonyme est activé.",
+		published_t = "Publié",
+		published_d = "Votre script est maintenant dans la communauté.",
+		publish_fail = "Publication impossible",
+		publish_fail_d = "Code %s. Les 24 h ne sont peut-être pas écoulées ou les règles l'ont refusé.",
+		no_edit = "Aucune modification",
+		no_edit_d = [[Appuyez d'abord sur "Modifier" sur l'un de vos scripts.]],
+		edited_t = "Modifié",
+		edited_d = "Votre script a été mis à jour.",
+		edit_fail = "Modification impossible",
+		edit_fail_d = "Code %s. Vous ne pouvez modifier que vos propres scripts.",
+		cooldown = "Vous pourrez publier un autre script dans %02d:%02d:%02d",
+		can_publish = "Vous pouvez publier un script",
+	},
+
+	de = {
+		lang_name = "Deutsch",
+		lang_title = "Sprache",
+		lang_detected = "Sprache erkannt: %s",
+		t_error = "Fehler",
+		admin_auth_fail = "Authentifizierung bei Firebase zum Aktivieren des Admins fehlgeschlagen.",
+		admin_mode = "Admin-Modus",
+		admin_on = "Admin automatisch aktiviert (UID: %s).",
+		admin_warn = "Admin-Warnung",
+		admin_reg_fail = "Registrierung bei Firebase fehlgeschlagen (Code %s). Prüfe die Regeln.",
+		published = "Veröffentlicht: ",
+		now_preview = "jetzt (Vorschau)",
+		edited = "bearbeitet",
+		fb_login_fail = "Anmeldung bei Firebase fehlgeschlagen.",
+		vote_fail = "Deine Stimme konnte nicht gespeichert werden (Code %s).",
+		no_image = "Kein Bild",
+		no_name = "(ohne Namen)",
+		script_preview_ph = "(der Skripttext erscheint hier)",
+		use_copy_full = "... (nutze Skript kopieren für den vollständigen Text)",
+		direct_execute = "Direct execute",
+		running = "Läuft...",
+		running_msg = [["%s" wird ausgeführt.]],
+		run_error = "Fehler beim Ausführen",
+		script_error = "Fehler im Skript",
+		copy_script = "Skript kopieren",
+		copied = "Kopiert",
+		copied_msg = [["%s" in die Zwischenablage kopiert.]],
+		unavailable = "Nicht verfügbar",
+		no_clipboard = "Dein Executor unterstützt die Zwischenablage nicht.",
+		delete = "Löschen",
+		delete_admin = "Löschen (Admin)",
+		edit = "Bearbeiten",
+		sure_tap = "Sicher? Nochmal",
+		deleting = "Wird gelöscht...",
+		deleted = "Gelöscht",
+		deleted_own = "Dein Skript wurde gelöscht.",
+		deleted_admin = "Skript gelöscht (Admin).",
+		delete_fail = "Löschen fehlgeschlagen (Code %s).",
+		views_execs = "Aufrufe: %d  |  Ausf.: %d",
+		delete_msg_admin = "Entfernen (Admin)",
+		erasing = "Wird entfernt...",
+		msg_deleted = "Nachricht gelöscht.",
+		msg_delete_fail = "Entfernen fehlgeschlagen (Code %s).",
+		window_name = "Skript-Community",
+		tab_feed = "Community",
+		tab_create = "Skript erstellen",
+		feed_title = "Community-Skripte",
+		active_users = "Aktive Nutzer: %s",
+		refresh = "Aktualisieren",
+		refreshing = "Aktualisiere...",
+		sort_exec = "Meist ausgeführt",
+		sort_views = "Meist angesehen",
+		sort_recent = "Neu veröffentlicht",
+		sort_oldest = "Älteste",
+		sort_dislikes = "Meiste Dislikes",
+		sort_likes = "Meiste Likes",
+		sort_by = "Sortieren nach:",
+		search_ph = "Skript oder Autor suchen...",
+		no_scripts = "Noch keine Skripte. Sei der Erste, der etwas veröffentlicht.",
+		no_results = "Keine Skripte zu dieser Suche.",
+		connect_fail = "Verbindung fehlgeschlagen (%s). Prüfe DB_URL, API_KEY und die Regeln.",
+		back = "< Zurück",
+		script_chat = "Chat zu diesem Skript",
+		editing_msg = "Deine Nachricht wird bearbeitet...",
+		cancel = "Abbrechen",
+		msg_ph = "Nachricht schreiben (max. 300)",
+		send = "Senden",
+		no_messages = "Noch keine Nachrichten. Schreib die erste.",
+		empty_msg = "Leere Nachricht",
+		empty_msg_d = "Schreib zuerst etwas.",
+		too_long = "Zu lang",
+		max_300 = "Maximal 300 Zeichen.",
+		wait_t = "Warten",
+		wait_3s = "Sende Nachrichten mit 3 Sekunden Abstand.",
+		send_fail = "Senden/Bearbeiten fehlgeschlagen (Code %s).",
+		new_script = "Neues Skript",
+		checking = "Prüfe...",
+		not_editing = "Du bearbeitest gerade kein Skript",
+		f_name = "Name",
+		f_name_ph = "Max. 50 Zeichen",
+		f_img = "Bild-ID",
+		f_img_ph = "Z. B.: 1234567890",
+		f_code = "Skripttext",
+		f_code_ph = "Füge dein Skript hier ein...",
+		preview = "Vorschau",
+		err_no_name = "Name fehlt",
+		err_no_name_d = "Schreibe einen Namen für dein Skript.",
+		err_no_script = "Skript fehlt",
+		err_no_script_d = "Füge den Skripttext ein.",
+		err_invalid = "Ungültiges Skript",
+		err_invalid_d = "Es muss echten ausführbaren Code enthalten. Nur Kommentare oder einzelne Buchstaben werden nicht akzeptiert.",
+		err_too_long_d = "Das Skript darf 50.000 Zeichen nicht überschreiten.",
+		editing_label = [[Bearbeite: "%s" - tippe auf "Bearbeitung speichern"]],
+		edit_mode = "Bearbeitungsmodus",
+		edit_mode_msg = [[Gehe zu "Skript erstellen", ändere, was du willst, und tippe auf "Bearbeitung speichern".]],
+		btn_publish = "Skript veröffentlichen",
+		btn_save_edit = "Bearbeitung speichern",
+		btn_cancel_edit = "Bearbeitung abbrechen",
+		already_editing = "Du bearbeitest gerade",
+		already_editing_d = "Speichere oder brich die Bearbeitung ab, bevor du ein neues veröffentlichst.",
+		wait_24h = "Seit deinem letzten Skript sind noch keine 24 Stunden vergangen.",
+		fb_login_fail_long = "Anmeldung bei Firebase fehlgeschlagen. Prüfe den API_KEY und ob Authentication > Anonym aktiviert ist.",
+		published_t = "Veröffentlicht",
+		published_d = "Dein Skript ist jetzt in der Community.",
+		publish_fail = "Veröffentlichen fehlgeschlagen",
+		publish_fail_d = "Code %s. Eventuell sind noch keine 24 h vergangen oder die Regeln haben es abgelehnt.",
+		no_edit = "Keine Bearbeitung",
+		no_edit_d = [[Tippe zuerst bei einem deiner Skripte auf "Bearbeiten".]],
+		edited_t = "Bearbeitet",
+		edited_d = "Dein Skript wurde aktualisiert.",
+		edit_fail = "Bearbeiten fehlgeschlagen",
+		edit_fail_d = "Code %s. Du kannst nur deine eigenen Skripte bearbeiten.",
+		cooldown = "Du kannst in %02d:%02d:%02d ein weiteres Skript veröffentlichen",
+		can_publish = "Du kannst jetzt ein Skript veröffentlichen",
+	},
+}
+
+-- Devuelve el texto en el idioma activo (si falta, usa ingles y luego espanol)
+local function tr(key, ...)
+	local s = (STR[LANG] and STR[LANG][key]) or STR.en[key] or STR.es[key] or key
+	if select("#", ...) > 0 then
+		local ok, r = pcall(string.format, s, ...)
+		if ok then
+			return r
+		end
+	end
+	return s
+end
+
+do
+	local FORCE_LANG = nil -- "es", "en", "pt", "fr" o "de" para forzar uno (nil = automatico)
+	local PREFER_SYSTEM_LOCALE = false -- true = prioriza el idioma del dispositivo sobre el de Roblox
+	local DETECT_DELAY = 3 -- segundos de espera antes de detectar el idioma
+	local LocalizationService = game:GetService("LocalizationService")
+
+	local function detect()
+		local forced = FORCE_LANG or (getgenv and getgenv().SpaceHubLang)
+		if forced and STR[tostring(forced):lower()] then
+			return tostring(forced):lower(), nil
+		end
+		local sources = {
+			function() return LocalizationService.RobloxLocaleId end,
+			function() return me.LocaleId end,
+			function() return LocalizationService.SystemLocaleId end,
+		}
+		if PREFER_SYSTEM_LOCALE then
+			sources = { sources[3], sources[1], sources[2] }
+		end
+		for _, get in ipairs(sources) do
+			local ok, id = pcall(get)
+			if ok and type(id) == "string" and id ~= "" then
+				local code = id:lower():match("^(%a+)")
+				if code then
+					return STR[code] and code or "en", id
+				end
+			end
+		end
+		return "es", nil
+	end
+
+	notify("Space Hub", "Detectando idioma... / Detecting language...", DETECT_DELAY)
+	task.wait(DETECT_DELAY)
+	local lang, rawId = detect()
+	LANG = lang
+	notify(tr("lang_title"), tr("lang_detected", tr("lang_name") .. (rawId and (" (" .. rawId .. ")") or "")), 3)
+end
+
+
 local AUTH_FILE = "SpaceHub/Community_Auth.json"
 local session = { exp = 0 }
 
@@ -216,9 +855,9 @@ local function imageUrl(id)
 	return id ~= "" and ("rbxthumb://type=Asset&id=" .. id .. "&w=420&h=420") or nil
 end
 local function dateText(d, preview)
-	local t = "Publicado: " .. (preview and "ahora (vista previa)" or fmtDate(d.createdAt))
+	local t = tr("published") .. (preview and tr("now_preview") or fmtDate(d.createdAt))
 	if d.editedAt then
-		t = t .. "  <font color='#FFB84D'>(editado " .. fmtDate(d.editedAt) .. ")</font>"
+		t = t .. "  <font color='#FFB84D'>(" .. tr("edited") .. " " .. fmtDate(d.editedAt) .. ")</font>"
 	end
 	return t
 end
@@ -263,7 +902,7 @@ local function reactionBar(parent, order, path, votes)
 		busy = true
 		task.spawn(function()
 			if not ensureAuth() then
-				notify("Error", "No se pudo iniciar sesion en Firebase.")
+				notify(tr("t_error"), tr("fb_login_fail"))
 				busy = false
 				return
 			end
@@ -281,7 +920,7 @@ local function reactionBar(parent, order, path, votes)
 			if code ~= 200 then
 				votes[uid] = prev
 				render()
-				notify("Error", "No se pudo registrar tu voto (codigo " .. tostring(code) .. ").")
+				notify(tr("t_error"), tr("vote_fail", tostring(code)))
 			end
 			busy = false
 		end)
@@ -313,11 +952,11 @@ local function buildCard(parent, d, order, opts)
 	}, head)
 	round(thumb, 8)
 	if not imageUrl(d.imageId) then
-		label(thumb, { Size = UDim2.fromScale(1, 1), Text = "Sin imagen", TextSize = 10, TextColor3 = MUTED,
+		label(thumb, { Size = UDim2.fromScale(1, 1), Text = tr("no_image"), TextSize = 10, TextColor3 = MUTED,
 			TextXAlignment = Enum.TextXAlignment.Center, TextWrapped = true })
 	end
 	label(head, { Position = UDim2.fromOffset(82, 0), Size = UDim2.new(1, -82, 0, 22),
-		Text = (d.name ~= nil and d.name ~= "") and d.name or "(sin nombre)", Font = Enum.Font.GothamBold, TextSize = 15 })
+		Text = (d.name ~= nil and d.name ~= "") and d.name or tr("no_name"), Font = Enum.Font.GothamBold, TextSize = 15 })
 	local av = mk("ImageLabel", {
 		Position = UDim2.fromOffset(82, 28), Size = UDim2.fromOffset(20, 20), BackgroundColor3 = BG2, BorderSizePixel = 0,
 		Image = "rbxthumb://type=AvatarHeadShot&id=" .. tostring(d.ownerUserId or 1) .. "&w=150&h=150",
@@ -342,12 +981,12 @@ local function buildCard(parent, d, order, opts)
 		mk("UIPadding", { PaddingTop = UDim.new(0, 8), PaddingBottom = UDim.new(0, 8),
 			PaddingLeft = UDim.new(0, 8), PaddingRight = UDim.new(0, 8) }, box)
 		label(box, { Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y,
-			Text = code:sub(1, 16000) .. (#code > 16000 and "\n... (usa Copiar script para el texto completo)" or ""),
+			Text = code:sub(1, 16000) .. (#code > 16000 and "\n" .. tr("use_copy_full") or ""),
 			Font = Enum.Font.Code, TextSize = 11, TextColor3 = TXT, TextWrapped = true,
 			TextTruncate = Enum.TextTruncate.None, TextYAlignment = Enum.TextYAlignment.Top })
 	else
 		label(box, { Position = UDim2.fromOffset(8, 6), Size = UDim2.new(1, -16, 1, -12),
-			Text = #code > 0 and (code:sub(1, 400) .. (#code > 400 and "\n..." or "")) or "(el texto del script aparecera aqui)",
+			Text = #code > 0 and (code:sub(1, 400) .. (#code > 400 and "\n..." or "")) or tr("script_preview_ph"),
 			Font = Enum.Font.Code, TextSize = 11, TextColor3 = MUTED, TextWrapped = true, TextTruncate = Enum.TextTruncate.None,
 			TextYAlignment = Enum.TextYAlignment.Top })
 	end
@@ -367,7 +1006,7 @@ local function buildCard(parent, d, order, opts)
 			local runRow = mk("Frame", { LayoutOrder = 3, Size = UDim2.new(1, 0, 0, 34), BackgroundTransparency = 1 }, card)
 			local run = mk("TextButton", {
 				Size = UDim2.fromScale(1, 1), BackgroundColor3 = Color3.fromRGB(40, 160, 90), BorderSizePixel = 0,
-				AutoButtonColor = true, Text = "Direct execute", Font = Enum.Font.GothamBold, TextSize = 13,
+				AutoButtonColor = true, Text = tr("direct_execute"), Font = Enum.Font.GothamBold, TextSize = 13,
 				TextColor3 = TXT,
 			}, runRow)
 			round(run, 6)
@@ -377,74 +1016,74 @@ local function buildCard(parent, d, order, opts)
 					return
 				end
 				running = true
-				run.Text = "Ejecutando..."
+				run.Text = tr("running")
 				markStat("execs", opts.id)
 				local fn, err = loadstring(code)
 				if fn then
-					notify("Direct execute", '"' .. tostring(d.name) .. '" se esta ejecutando.', 3)
+					notify(tr("direct_execute"), tr("running_msg", tostring(d.name)), 3)
 					task.spawn(function()
 						local ok, e = pcall(fn)
 						if not ok then
-							notify("Error al ejecutar", tostring(e), 6)
+							notify(tr("run_error"), tostring(e), 6)
 						end
 					end)
 				else
-					notify("Error en el script", tostring(err), 6)
+					notify(tr("script_error"), tostring(err), 6)
 				end
 				task.delay(1.5, function()
 					running = false
 					if run.Parent then
-						run.Text = "Direct execute"
+						run.Text = tr("direct_execute")
 					end
 				end)
 			end)
 		end
 
 		local bar = mk("Frame", { LayoutOrder = 4, Size = UDim2.new(1, 0, 0, 28), BackgroundTransparency = 1 }, card)
-		local copy = smallButton(bar, "Copiar script", Color3.fromRGB(46, 110, 200), 0, 110)
+		local copy = smallButton(bar, tr("copy_script"), Color3.fromRGB(46, 110, 200), 0, 110)
 		copy.Activated:Connect(function()
 			local fn = setclipboard or toclipboard
 			if fn then
 				pcall(fn, code)
 				markStat("execs", opts.id)
-				notify("Copiado", '"' .. tostring(d.name) .. '" copiado al portapapeles.', 2)
+				notify(tr("copied"), tr("copied_msg", tostring(d.name)), 2)
 			else
-				notify("No disponible", "Tu executor no soporta portapapeles.")
+				notify(tr("unavailable"), tr("no_clipboard"))
 			end
 		end)
 		if d.ownerUid and d.ownerUid == session.uid then
-			local edit = smallButton(bar, "Editar", Color3.fromRGB(90, 90, 120), 118, 80)
+			local edit = smallButton(bar, tr("edit"), Color3.fromRGB(90, 90, 120), 118, 80)
 			edit.Activated:Connect(function()
 				if opts.onEdit then
 					opts.onEdit(d)
 				end
 			end)
-			local del = smallButton(bar, "Eliminar", Color3.fromRGB(180, 55, 60), 206, 120)
+			local del = smallButton(bar, tr("delete"), Color3.fromRGB(180, 55, 60), 206, 120)
 			local armed = false
 			del.Activated:Connect(function()
 				if not armed then
 					armed = true
-					del.Text = "Seguro? Toca otra vez"
+					del.Text = tr("sure_tap")
 					task.delay(3, function()
 						armed = false
 						if del.Parent then
-							del.Text = "Eliminar"
+							del.Text = tr("delete")
 						end
 					end)
 					return
 				end
-				del.Text = "Eliminando..."
+				del.Text = tr("deleting")
 				task.spawn(function()
 					local c = db("DELETE", "scripts/" .. opts.id)
 					if c == 200 then
-						notify("Eliminado", "Tu script fue eliminado.", 3)
+						notify(tr("deleted"), tr("deleted_own"), 3)
 						if opts.onDeleted then
 							opts.onDeleted()
 						end
 					else
-						notify("Error", "No se pudo eliminar (codigo " .. tostring(c) .. ").")
+						notify(tr("t_error"), tr("delete_fail", tostring(c)))
 						if del.Parent then
-							del.Text = "Eliminar"
+							del.Text = tr("delete")
 						end
 						armed = false
 					end
@@ -453,7 +1092,7 @@ local function buildCard(parent, d, order, opts)
 		end
 		local rbar = reactionBar(card, 5, "scripts/" .. opts.id .. "/votes", d.votes)
 		label(rbar, { Position = UDim2.fromOffset(140, 0), Size = UDim2.new(1, -140, 0, 28),
-			Text = "Vistas: " .. countTbl(d.views) .. "  |  Ejec: " .. countTbl(d.execs),
+			Text = tr("views_execs", countTbl(d.views), countTbl(d.execs)),
 			TextColor3 = MUTED, TextSize = 11 })
 	end
 	return card
@@ -485,7 +1124,7 @@ local function buildChatCard(parent, d, order, sid, onEdit)
 
 	local bar = reactionBar(card, 4, "chat/" .. sid .. "/" .. d.__id .. "/votes", d.votes)
 	if d.ownerUid and d.ownerUid == session.uid then
-		local edit = smallButton(bar, "Editar", Color3.fromRGB(90, 90, 120), 150, 80)
+		local edit = smallButton(bar, tr("edit"), Color3.fromRGB(90, 90, 120), 150, 80)
 		edit.Activated:Connect(function()
 			onEdit(d)
 		end)
@@ -493,11 +1132,11 @@ local function buildChatCard(parent, d, order, sid, onEdit)
 	return card
 end
 
-local Window = SpaceHub:CreateWindow({ Name = "Comunidad de Scripts" })
+local Window = SpaceHub:CreateWindow({ Name = tr("window_name") })
 local winRef = SpaceHub._window
 
-local Feed = Window:CreateTab("Comunidad")
-local Create = Window:CreateTab("Crear script")
+local Feed = Window:CreateTab(tr("tab_feed"))
+local Create = Window:CreateTab(tr("tab_create"))
 
 ----------------------------------------------------------------------
 -- INICIO: encabezado con contador de usuarios activos
@@ -505,13 +1144,13 @@ local Create = Window:CreateTab("Crear script")
 local header = mk("Frame", { LayoutOrder = Feed._nextOrder(), Size = UDim2.new(1, 0, 0, 56),
 	BackgroundColor3 = BG, BorderSizePixel = 0 }, Feed.Page)
 round(header)
-label(header, { Position = UDim2.fromOffset(12, 6), Size = UDim2.new(1, -150, 0, 22), Text = "Scripts de la comunidad",
+label(header, { Position = UDim2.fromOffset(12, 6), Size = UDim2.new(1, -150, 0, 22), Text = tr("feed_title"),
 	Font = Enum.Font.GothamBold, TextSize = 14 })
 local dot = mk("Frame", { Position = UDim2.fromOffset(12, 36), Size = UDim2.fromOffset(8, 8),
 	BackgroundColor3 = Color3.fromRGB(80, 220, 120), BorderSizePixel = 0 }, header)
 round(dot, 4)
 local activeLbl = label(header, { Position = UDim2.fromOffset(26, 30), Size = UDim2.new(1, -170, 0, 20),
-	Text = "Usuarios activos: ...", TextColor3 = Color3.fromRGB(120, 225, 150), Font = Enum.Font.GothamMedium })
+	Text = tr("active_users", "..."), TextColor3 = Color3.fromRGB(120, 225, 150), Font = Enum.Font.GothamMedium })
 
 local refreshBtn = mk("TextButton", { AnchorPoint = Vector2.new(1, 0.5), Position = UDim2.new(1, -8, 0.5, 0),
 	Size = UDim2.fromOffset(130, 32), BackgroundColor3 = BG2, AutoButtonColor = false, Text = "" }, header)
@@ -524,7 +1163,7 @@ mk("UIGradient", { Transparency = NumberSequence.new({
 	NumberSequenceKeypoint.new(0, 0), NumberSequenceKeypoint.new(0.72, 0),
 	NumberSequenceKeypoint.new(0.721, 1), NumberSequenceKeypoint.new(1, 1) }) }, stroke)
 local status = label(refreshBtn, { Position = UDim2.fromOffset(36, 0), Size = UDim2.new(1, -40, 1, 0),
-	Text = "Actualizar", Font = Enum.Font.GothamMedium, TextSize = 12 })
+	Text = tr("refresh"), Font = Enum.Font.GothamMedium, TextSize = 12 })
 
 local function updateActive()
 	if not ensureAuth() then
@@ -540,7 +1179,7 @@ local function updateActive()
 			for _ in pairs(d) do
 				n = n + 1
 			end
-			activeLbl.Text = "Usuarios activos: " .. tostring(n)
+			activeLbl.Text = tr("active_users", tostring(n))
 		end
 	end
 end
@@ -552,7 +1191,7 @@ local function setLoading(on)
 		spin = TweenService:Create(ring, TweenInfo.new(0.7, Enum.EasingStyle.Linear, Enum.EasingDirection.In, -1),
 			{ Rotation = 360 })
 		spin:Play()
-		status.Text = "Actualizando..."
+		status.Text = tr("refreshing")
 	else
 		if spin then
 			spin:Cancel()
@@ -564,13 +1203,13 @@ local function setLoading(on)
 		t.Completed:Connect(function()
 			ring.Rotation = 0
 		end)
-		status.Text = "Actualizar"
+		status.Text = tr("refresh")
 	end
 end
 
 local SORTS = {
-	{ "exec", "Mayor ejecucion" }, { "views", "Mayor vistas" }, { "recent", "Recien publicado" },
-	{ "oldest", "Mas antiguo" }, { "dislikes", "Mas dislikes" }, { "likes", "Mas likes" },
+	{ "exec", tr("sort_exec") }, { "views", tr("sort_views") }, { "recent", tr("sort_recent") },
+	{ "oldest", tr("sort_oldest") }, { "dislikes", tr("sort_dislikes") }, { "likes", tr("sort_likes") },
 }
 local sortMode, searchText, cache = "recent", "", {}
 local renderList
@@ -580,13 +1219,13 @@ local toolbar = mk("Frame", { LayoutOrder = Feed._nextOrder(), Size = UDim2.new(
 mk("UIListLayout", { Padding = UDim.new(0, 6), SortOrder = Enum.SortOrder.LayoutOrder }, toolbar)
 local barRow = mk("Frame", { LayoutOrder = 1, Size = UDim2.new(1, 0, 0, 34), BackgroundTransparency = 1 }, toolbar)
 local searchBox = mk("TextBox", { Size = UDim2.new(1, -166, 1, 0), BackgroundColor3 = BG, BorderSizePixel = 0,
-	Text = "", PlaceholderText = "Buscar script o autor...", PlaceholderColor3 = MUTED, TextColor3 = TXT,
+	Text = "", PlaceholderText = tr("search_ph"), PlaceholderColor3 = MUTED, TextColor3 = TXT,
 	Font = Enum.Font.Gotham, TextSize = 13, ClearTextOnFocus = false, TextXAlignment = Enum.TextXAlignment.Left,
 	TextTruncate = Enum.TextTruncate.AtEnd }, barRow)
 round(searchBox, 8)
 mk("UIPadding", { PaddingLeft = UDim.new(0, 10), PaddingRight = UDim.new(0, 10) }, searchBox)
 local sortBtn = mk("TextButton", { AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, 0, 0, 0),
-	Size = UDim2.new(0, 158, 1, 0), BackgroundColor3 = BG, AutoButtonColor = true, Text = "Recien publicado  v",
+	Size = UDim2.new(0, 158, 1, 0), BackgroundColor3 = BG, AutoButtonColor = true, Text = tr("sort_recent") .. "  v",
 	Font = Enum.Font.GothamMedium, TextSize = 12, TextColor3 = TXT, TextTruncate = Enum.TextTruncate.AtEnd }, barRow)
 round(sortBtn, 8)
 
@@ -596,7 +1235,7 @@ round(sortList)
 mk("UIPadding", { PaddingTop = UDim.new(0, 6), PaddingBottom = UDim.new(0, 6),
 	PaddingLeft = UDim.new(0, 6), PaddingRight = UDim.new(0, 6) }, sortList)
 mk("UIListLayout", { Padding = UDim.new(0, 4), SortOrder = Enum.SortOrder.LayoutOrder }, sortList)
-label(sortList, { LayoutOrder = 0, Size = UDim2.new(1, 0, 0, 18), Text = "Ordenar por:", TextColor3 = MUTED, TextSize = 11 })
+label(sortList, { LayoutOrder = 0, Size = UDim2.new(1, 0, 0, 18), Text = tr("sort_by"), TextColor3 = MUTED, TextSize = 11 })
 for i, opt in ipairs(SORTS) do
 	local ob = mk("TextButton", { LayoutOrder = i, Size = UDim2.new(1, 0, 0, 28), BackgroundColor3 = BG2,
 		AutoButtonColor = true, Text = opt[2], Font = Enum.Font.GothamMedium, TextSize = 12, TextColor3 = TXT }, sortList)
@@ -697,7 +1336,7 @@ renderList = function()
 	end)
 	if #arr == 0 then
 		label(listFrame, { Size = UDim2.new(1, 0, 0, 40), TextColor3 = MUTED,
-			Text = (#cache == 0) and "Aun no hay scripts. Se el primero en publicar." or "No hay scripts con esa busqueda." })
+			Text = (#cache == 0) and tr("no_scripts") or tr("no_results") })
 	end
 	for i, d in ipairs(arr) do
 		buildCard(listFrame, d, i, {
@@ -726,8 +1365,7 @@ loadList = function()
 	task.wait(math.max(0, 0.8 - (os.clock() - started)))
 	if code ~= 200 then
 		clearList()
-		label(listFrame, { Size = UDim2.new(1, 0, 0, 40), Text = "No se pudo conectar (" .. tostring(code) ..
-			"). Revisa DB_URL, API_KEY y las reglas.", TextColor3 = Color3.fromRGB(255, 120, 120), TextWrapped = true })
+		label(listFrame, { Size = UDim2.new(1, 0, 0, 40), Text = tr("connect_fail", tostring(code)), TextColor3 = Color3.fromRGB(255, 120, 120), TextWrapped = true })
 	else
 		cache = {}
 		for id, d in pairs(type(data) == "table" and data or {}) do
@@ -784,7 +1422,7 @@ openDetail = function(d)
 	detailFrame.Visible = true
 
 	local backRow = mk("Frame", { LayoutOrder = 1, Size = UDim2.new(1, 0, 0, 32), BackgroundTransparency = 1 }, detailFrame)
-	local back = smallButton(backRow, "< Volver", BG, 0, 100)
+	local back = smallButton(backRow, tr("back"), BG, 0, 100)
 	back.Size = UDim2.fromOffset(100, 32)
 	back.Activated:Connect(function()
 		closeDetail()
@@ -803,7 +1441,7 @@ openDetail = function(d)
 		end,
 	})
 
-	label(detailFrame, { LayoutOrder = 3, Size = UDim2.new(1, 0, 0, 24), Text = "Chat de este script",
+	label(detailFrame, { LayoutOrder = 3, Size = UDim2.new(1, 0, 0, 24), Text = tr("script_chat"),
 		Font = Enum.Font.GothamBold, TextSize = 14 })
 	local chatList = mk("Frame", { LayoutOrder = 4, Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y,
 		BackgroundTransparency = 1 }, detailFrame)
@@ -811,19 +1449,19 @@ openDetail = function(d)
 
 	local editRow = mk("Frame", { LayoutOrder = 5, Size = UDim2.new(1, 0, 0, 28), BackgroundTransparency = 1,
 		Visible = false }, detailFrame)
-	label(editRow, { Size = UDim2.new(1, -100, 1, 0), Text = "Editando tu mensaje...", TextColor3 = Color3.fromRGB(255, 184, 77) })
-	local cancelEdit = smallButton(editRow, "Cancelar", Color3.fromRGB(90, 90, 120), 0, 90)
+	label(editRow, { Size = UDim2.new(1, -100, 1, 0), Text = tr("editing_msg"), TextColor3 = Color3.fromRGB(255, 184, 77) })
+	local cancelEdit = smallButton(editRow, tr("cancel"), Color3.fromRGB(90, 90, 120), 0, 90)
 	cancelEdit.AnchorPoint = Vector2.new(1, 0)
 	cancelEdit.Position = UDim2.new(1, 0, 0, 0)
 
 	local inputRow = mk("Frame", { LayoutOrder = 6, Size = UDim2.new(1, 0, 0, 38), BackgroundTransparency = 1 }, detailFrame)
 	local box = mk("TextBox", { Size = UDim2.new(1, -92, 1, 0), BackgroundColor3 = BG2, BorderSizePixel = 0,
-		Text = "", PlaceholderText = "Escribe un mensaje (max. 300)", PlaceholderColor3 = MUTED, TextColor3 = TXT,
+		Text = "", PlaceholderText = tr("msg_ph"), PlaceholderColor3 = MUTED, TextColor3 = TXT,
 		Font = Enum.Font.Gotham, TextSize = 13, ClearTextOnFocus = false, TextXAlignment = Enum.TextXAlignment.Left,
 		TextTruncate = Enum.TextTruncate.None }, inputRow)
 	round(box, 8)
 	mk("UIPadding", { PaddingLeft = UDim.new(0, 10), PaddingRight = UDim.new(0, 10) }, box)
-	local send = smallButton(inputRow, "Enviar", Color3.fromRGB(46, 110, 200), 0, 84)
+	local send = smallButton(inputRow, tr("send"), Color3.fromRGB(46, 110, 200), 0, 84)
 	send.AnchorPoint = Vector2.new(1, 0)
 	send.Position = UDim2.new(1, 0, 0, 0)
 	send.Size = UDim2.fromOffset(84, 38)
@@ -883,7 +1521,7 @@ openDetail = function(d)
 					end
 				end
 				if #arr == 0 then
-					label(chatList, { Size = UDim2.new(1, 0, 0, 28), Text = "Aun no hay mensajes. Escribe el primero.",
+					label(chatList, { Size = UDim2.new(1, 0, 0, 28), Text = tr("no_messages"),
 						TextColor3 = MUTED })
 				end
 				for i, m in ipairs(arr) do
@@ -900,19 +1538,19 @@ openDetail = function(d)
 		end
 		local text = box.Text:gsub("^%s+", ""):gsub("%s+$", "")
 		if text == "" then
-			return notify("Mensaje vacio", "Escribe algo primero.")
+			return notify(tr("empty_msg"), tr("empty_msg_d"))
 		end
 		if #text > 300 then
-			return notify("Muy largo", "Maximo 300 caracteres.")
+			return notify(tr("too_long"), tr("max_300"))
 		end
 		if not editingChatId and os.clock() - lastSend < 3 then
-			return notify("Espera", "Envia mensajes con 3 segundos de diferencia.", 2)
+			return notify(tr("wait_t"), tr("wait_3s"), 2)
 		end
 		sending = true
 		task.spawn(function()
 			if not ensureAuth() then
 				sending = false
-				return notify("Error", "No se pudo iniciar sesion en Firebase.")
+				return notify(tr("t_error"), tr("fb_login_fail"))
 			end
 			local code
 			if editingChatId then
@@ -935,7 +1573,7 @@ openDetail = function(d)
 				box.Text = ""
 				loadChat(true)
 			else
-				notify("Error", "No se pudo enviar/editar (codigo " .. tostring(code) .. ").", 5)
+				notify(tr("t_error"), tr("send_fail", tostring(code)), 5)
 			end
 			sending = false
 		end)
@@ -953,15 +1591,15 @@ end
 ----------------------------------------------------------------------
 -- CREAR / EDITAR SCRIPT
 ----------------------------------------------------------------------
-Create:CreateSection("Nuevo script")
-local cooldownLbl = Create:CreateLabel("Comprobando...")
-local editLbl = Create:CreateLabel("No estas editando ningun script")
+Create:CreateSection(tr("new_script"))
+local cooldownLbl = Create:CreateLabel(tr("checking"))
+local editLbl = Create:CreateLabel(tr("not_editing"))
 
-local nameIn = Create:CreateInput({ Name = "Nombre", PlaceholderText = "Max. 50 caracteres", CurrentValue = "" })
-local imgIn = Create:CreateInput({ Name = "ID de imagen", PlaceholderText = "Ej: 1234567890", CurrentValue = "" })
-local codeIn = Create:CreateCodeInput({ Name = "Texto del script", Height = 200, PlaceholderText = "Pega tu script aqui..." })
+local nameIn = Create:CreateInput({ Name = tr("f_name"), PlaceholderText = tr("f_name_ph"), CurrentValue = "" })
+local imgIn = Create:CreateInput({ Name = tr("f_img"), PlaceholderText = tr("f_img_ph"), CurrentValue = "" })
+local codeIn = Create:CreateCodeInput({ Name = tr("f_code"), Height = 200, PlaceholderText = tr("f_code_ph") })
 
-Create:CreateSection("Vista previa")
+Create:CreateSection(tr("preview"))
 local previewFrame = mk("Frame", { LayoutOrder = Create._nextOrder(), Size = UDim2.new(1, 0, 0, 0),
 	AutomaticSize = Enum.AutomaticSize.Y, BackgroundTransparency = 1 }, Create.Page)
 mk("UIListLayout", {}, previewFrame)
@@ -1001,16 +1639,16 @@ end
 
 local function formError(f)
 	if f.name == "" then
-		return "Falta el nombre", "Escribe un nombre para tu script."
+		return tr("err_no_name"), tr("err_no_name_d")
 	end
 	if f.script:gsub("%s", "") == "" then
-		return "Falta el script", "Pega el texto del script."
+		return tr("err_no_script"), tr("err_no_script_d")
 	end
 	if #f.script < 10 or not hasRealCode(f.script) then
-		return "Script invalido", "Debe tener codigo ejecutable real. No se aceptan solo comentarios ni letras sueltas."
+		return tr("err_invalid"), tr("err_invalid_d")
 	end
 	if #f.script > 50000 then
-		return "Muy largo", "El script no puede superar 50.000 caracteres."
+		return tr("too_long"), tr("err_too_long_d")
 	end
 end
 
@@ -1026,19 +1664,19 @@ startEditScript = function(d)
 	nameIn:Set(tostring(d.name or ""))
 	imgIn:Set(tostring(d.imageId or ""))
 	codeIn:Set(tostring(d.script or ""))
-	editLbl:Set('Editando: "' .. tostring(d.name) .. '" - pulsa "Guardar edicion"')
-	notify("Modo edicion", 'Ve a "Crear script", cambia lo que quieras y pulsa "Guardar edicion".', 5)
+	editLbl:Set(tr("editing_label", tostring(d.name)))
+	notify(tr("edit_mode"), tr("edit_mode_msg"), 5)
 end
 
 local publishing = false
 Create:CreateButton({
-	Name = "Publicar script",
+	Name = tr("btn_publish"),
 	Callback = function()
 		if publishing then
 			return
 		end
 		if editingScriptId then
-			return notify("Estas editando", "Guarda o cancela la edicion antes de publicar uno nuevo.")
+			return notify(tr("already_editing"), tr("already_editing_d"))
 		end
 		local f = currentForm()
 		local et, em = formError(f)
@@ -1046,13 +1684,13 @@ Create:CreateButton({
 			return notify(et, em)
 		end
 		if remaining() > 0 then
-			return notify("Espera", "Aun no pasaron 24 horas desde tu ultimo script.")
+			return notify(tr("wait_t"), tr("wait_24h"))
 		end
 		publishing = true
 		task.spawn(function()
 			if not ensureAuth() then
 				publishing = false
-				return notify("Error", "No se pudo iniciar sesion en Firebase. Revisa API_KEY y que Authentication > Anonimo este activado.", 6)
+				return notify(tr("t_error"), tr("fb_login_fail_long"), 6)
 			end
 			local id = HttpService:GenerateGUID(false)
 			local code = db("PATCH", "", {
@@ -1064,12 +1702,12 @@ Create:CreateButton({
 				["users/" .. session.uid .. "/lastPublish"] = NOW,
 			})
 			if code == 200 then
-				notify("Publicado", "Tu script ya esta en la comunidad.", 4)
+				notify(tr("published_t"), tr("published_d"), 4)
 				clearForm()
 				fetchCooldown()
 				loadList()
 			else
-				notify("No se pudo publicar", "Codigo " .. tostring(code) .. ". Puede que no hayan pasado 24 h o las reglas lo rechazaron.", 6)
+				notify(tr("publish_fail"), tr("publish_fail_d", tostring(code)), 6)
 			end
 			publishing = false
 		end)
@@ -1077,13 +1715,13 @@ Create:CreateButton({
 })
 
 Create:CreateButton({
-	Name = "Guardar edicion",
+	Name = tr("btn_save_edit"),
 	Callback = function()
 		if publishing then
 			return
 		end
 		if not editingScriptId then
-			return notify("Sin edicion", 'Pulsa "Editar" en uno de tus scripts primero.')
+			return notify(tr("no_edit"), tr("no_edit_d"))
 		end
 		local f = currentForm()
 		local et, em = formError(f)
@@ -1100,13 +1738,13 @@ Create:CreateButton({
 				["scripts/" .. id .. "/editedAt"] = NOW,
 			})
 			if code == 200 then
-				notify("Editado", "Tu script se actualizo.", 4)
+				notify(tr("edited_t"), tr("edited_d"), 4)
 				editingScriptId = nil
-				editLbl:Set("No estas editando ningun script")
+				editLbl:Set(tr("not_editing"))
 				clearForm()
 				loadList()
 			else
-				notify("No se pudo editar", "Codigo " .. tostring(code) .. ". Solo puedes editar tus propios scripts.", 6)
+				notify(tr("edit_fail"), tr("edit_fail_d", tostring(code)), 6)
 			end
 			publishing = false
 		end)
@@ -1114,11 +1752,11 @@ Create:CreateButton({
 })
 
 Create:CreateButton({
-	Name = "Cancelar edicion",
+	Name = tr("btn_cancel_edit"),
 	Callback = function()
 		if editingScriptId then
 			editingScriptId = nil
-			editLbl:Set("No estas editando ningun script")
+			editLbl:Set(tr("not_editing"))
 			clearForm()
 		end
 	end,
@@ -1131,9 +1769,9 @@ task.spawn(function()
 	while SpaceHub._window == winRef do
 		local r = remaining()
 		if r > 0 then
-			cooldownLbl:Set(string.format("Podras publicar otro script en %02d:%02d:%02d", r // 3600, (r % 3600) // 60, r % 60))
+			cooldownLbl:Set(tr("cooldown", r // 3600, (r % 3600) // 60, r % 60))
 		else
-			cooldownLbl:Set("Ya puedes publicar un script")
+			cooldownLbl:Set(tr("can_publish"))
 		end
 		pcall(refreshPreview)
 		task.wait(0.5)
