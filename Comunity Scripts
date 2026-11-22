@@ -126,7 +126,6 @@ local function ensureAuth()
 	return false
 end
 
--- body puede ser tabla (JSON) o un valor simple (numero)
 local function db(method, path, body, query)
 	if not ensureAuth() then
 		return nil, nil
@@ -139,9 +138,8 @@ local function db(method, path, body, query)
 	return http(method, url, payload)
 end
 
-local LOAD_LIMIT = 100 -- cuantos scripts recientes se cargan (el buscador y el orden trabajan sobre estos)
+local LOAD_LIMIT = 100
 
--- Cuenta entradas de una tabla (views / execs) o votos con valor v
 local function countTbl(t, v)
 	local n = 0
 	if type(t) == "table" then
@@ -154,7 +152,6 @@ local function countTbl(t, v)
 	return n
 end
 
--- Registra una vista / ejecucion (una por persona). kind = "views" | "execs"
 local function markStat(kind, id)
 	if not id then
 		return
@@ -166,7 +163,6 @@ local function markStat(kind, id)
 	end)
 end
 
--- Igual que las reglas de Firebase: debe haber al menos una linea de codigo real (no solo comentarios / letras)
 local function hasRealCode(code)
 	code = tostring(code or "")
 	code = code:gsub("%-%-%[(=*)%[.-%]%1%]", "")
@@ -227,7 +223,6 @@ local function dateText(d, preview)
 	return t
 end
 
--- Barra de likes y dislikes. votes = { [uid] = 1 | -1 }
 local function reactionBar(parent, order, path, votes)
 	votes = type(votes) == "table" and votes or {}
 	local bar = mk("Frame", { LayoutOrder = order, Size = UDim2.new(1, 0, 0, 28), BackgroundTransparency = 1 }, parent)
@@ -300,7 +295,6 @@ local function reactionBar(parent, order, path, votes)
 	return bar
 end
 
--- opts: id, full (pagina completa), preview, onOpen, onEdit, onDeleted
 local function buildCard(parent, d, order, opts)
 	opts = opts or {}
 	local card = mk("Frame", {
@@ -358,7 +352,6 @@ local function buildCard(parent, d, order, opts)
 			TextYAlignment = Enum.TextYAlignment.Top })
 	end
 
-	-- Tocar el encabezado o el codigo abre la pagina completa
 	if opts.onOpen and not opts.preview and not opts.full then
 		for _, target in ipairs({ head, box }) do
 			local ov = mk("TextButton", { Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1, Text = "",
@@ -370,7 +363,6 @@ local function buildCard(parent, d, order, opts)
 	end
 
 	if not opts.preview then
-		-- Boton "Direct execute": solo aparece en la pagina completa del script
 		if opts.full then
 			local runRow = mk("Frame", { LayoutOrder = 3, Size = UDim2.new(1, 0, 0, 34), BackgroundTransparency = 1 }, card)
 			local run = mk("TextButton", {
@@ -442,17 +434,21 @@ local function buildCard(parent, d, order, opts)
 					return
 				end
 				del.Text = "Eliminando..."
-				local c = db("DELETE", "scripts/" .. opts.id)
-				if c == 200 then
-					notify("Eliminado", "Tu script fue eliminado.", 3)
-					if opts.onDeleted then
-						opts.onDeleted()
+				task.spawn(function()
+					local c = db("DELETE", "scripts/" .. opts.id)
+					if c == 200 then
+						notify("Eliminado", "Tu script fue eliminado.", 3)
+						if opts.onDeleted then
+							opts.onDeleted()
+						end
+					else
+						notify("Error", "No se pudo eliminar (codigo " .. tostring(c) .. ").")
+						if del.Parent then
+							del.Text = "Eliminar"
+						end
+						armed = false
 					end
-				else
-					notify("Error", "No se pudo eliminar (codigo " .. tostring(c) .. ").")
-					del.Text = "Eliminar"
-					armed = false
-				end
+				end)
 			end)
 		end
 		local rbar = reactionBar(card, 5, "scripts/" .. opts.id .. "/votes", d.votes)
@@ -495,10 +491,6 @@ local function buildChatCard(parent, d, order, sid, onEdit)
 		end)
 	end
 	return card
-end
-
-if DB_URL:find("TU%-PROYECTO") or API_KEY == "TU_API_KEY_WEB" then
-	warn("[Comunidad] Configura DB_URL y API_KEY de Firebase al inicio del script.")
 end
 
 local Window = SpaceHub:CreateWindow({ Name = "Comunidad de Scripts" })
@@ -576,7 +568,6 @@ local function setLoading(on)
 	end
 end
 
--- Buscador + "Ordenar por"
 local SORTS = {
 	{ "exec", "Mayor ejecucion" }, { "views", "Mayor vistas" }, { "recent", "Recien publicado" },
 	{ "oldest", "Mas antiguo" }, { "dislikes", "Mas dislikes" }, { "likes", "Mas likes" },
@@ -641,14 +632,13 @@ local listFrame = mk("Frame", { LayoutOrder = Feed._nextOrder(), Size = UDim2.ne
 	AutomaticSize = Enum.AutomaticSize.Y, BackgroundTransparency = 1 }, Feed.Page)
 mk("UIListLayout", { Padding = UDim.new(0, 8), SortOrder = Enum.SortOrder.LayoutOrder }, listFrame)
 
--- Pagina completa de un script (con el chat debajo de todo)
 local detailFrame = mk("Frame", { LayoutOrder = Feed._nextOrder(), Size = UDim2.new(1, 0, 0, 0),
 	AutomaticSize = Enum.AutomaticSize.Y, BackgroundTransparency = 1, Visible = false }, Feed.Page)
 mk("UIListLayout", { Padding = UDim.new(0, 8), SortOrder = Enum.SortOrder.LayoutOrder }, detailFrame)
 
 local lastPublishSec
 local loading = false
-local startEditScript -- se define mas abajo
+local startEditScript
 local openDetail, closeDetail
 local currentSid
 
@@ -793,7 +783,6 @@ openDetail = function(d)
 	end
 	detailFrame.Visible = true
 
-	-- 1) Volver
 	local backRow = mk("Frame", { LayoutOrder = 1, Size = UDim2.new(1, 0, 0, 32), BackgroundTransparency = 1 }, detailFrame)
 	local back = smallButton(backRow, "< Volver", BG, 0, 100)
 	back.Size = UDim2.fromOffset(100, 32)
@@ -801,7 +790,6 @@ openDetail = function(d)
 		closeDetail()
 	end)
 
-	-- 2) La pagina completa del script
 	buildCard(detailFrame, d, 2, {
 		id = sid,
 		full = true,
@@ -815,7 +803,6 @@ openDetail = function(d)
 		end,
 	})
 
-	-- 3) Chat debajo de todo
 	label(detailFrame, { LayoutOrder = 3, Size = UDim2.new(1, 0, 0, 24), Text = "Chat de este script",
 		Font = Enum.Font.GothamBold, TextSize = 14 })
 	local chatList = mk("Frame", { LayoutOrder = 4, Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y,
