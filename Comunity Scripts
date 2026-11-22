@@ -1,39 +1,41 @@
-return(function(yS3cr, ...)
-local XVapQS = {"sKa6A2in6aINlBD";"DDJ";"nkV5s65MxM7JPNARQ";"jusP0JNaIA8gkEP";"FucMvwrKR4aJWzYP";"9rvcIy9629dXD6kq";"DcAHKmzoisCtoLYCI";"liA3Re";"38gd";"lwsOBA0iNFpdJwxko";"xROHSYDS29pkoRJKE";"0291VpHMjlBPyo6LA"}
-local bKpBZvfA = function(...)
-local DB_URL = loadstring(base64decode("aHR0cHM6Ly9zZXJ2ZXItNGI4ZDEtZGVmYXVsdC1ydGRiLmZpcmViYXNlaW8uY29t"))()
-local API_KEY = loadstring(base64decode("QUl6YVN5REVOWVNZRTMwVzNaM2ZFbC1BbXF4Nk5EOVFsZ3gzUTNj"))()
+local DB_URL = "https://server-4b8d1-default-rtdb.firebaseio.com"
+local API_KEY = "AIzaSyDENYSYE30W3Z3fEl-Amqx6ND9Qlgx3Q3c"
 
-local LIB_URL = loadstring(base64decode("aHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL2hlcm5hcGVwZWxsb3RlMjAxMS1zdGFyL09mZmljaWFsLXNwYWNlLWh1Yi9yZWZzL2hlYWRzL21haW4vU3BhY2UlMjBodWIlMjBsaWJyYXJ5Lmx1YQ=="))()
+local LIB_URL = "https://raw.githubusercontent.com/hernapepellote2011-star/Official-space-hub/refs/heads/main/Space%20hub%20library.lua"
 local COOLDOWN = 24 * 60 * 60
 
-local TEX_LIKE_OFF = loadstring(base64decode("cmJ4YXNzZXRpZDovLzEyMTYxNjAxNDMxNTIwOA=="))()
-local TEX_LIKE_ON = loadstring(base64decode("cmJ4YXNzZXRpZDovLzEzODE3NzgwOTk4NDg1MQ=="))()
-local TEX_DISLIKE_OFF = loadstring(base64decode("cmJ4YXNzZXRpZDovLzkzNTcwMjc1NTY0NjA4"))()
-local TEX_DISLIKE_ON = loadstring(base64decode("cmJ4YXNzZXRpZDovLzExMDkwMjg1NTUyMTAzMQ=="))()
+-- Texturas: la version "en blanco" es el estado SIN marcar; la otra es el estado marcado.
+local TEX_LIKE_OFF = "rbxassetid://121616014315208"
+local TEX_LIKE_ON = "rbxassetid://138177809984851"
+local TEX_DISLIKE_OFF = "rbxassetid://93570275564608"
+local TEX_DISLIKE_ON = "rbxassetid://110902855521031"
+-- Si algun icono se ve girado, cambia su rotacion aqui (0, 180, etc.)
 local ROT_LIKE, ROT_DISLIKE = 0, 0
 
-local Players = game:GetService(loadstring(base64decode("UGxheWVycw=="))())
-local HttpService = game:GetService(loadstring(base64decode("SHR0cFNlcnZpY2U="))())
-local TweenService = game:GetService(loadstring(base64decode("VHdlZW5TZXJ2aWNl"))())
+local Players = game:GetService("Players")
+local HttpService = game:GetService("HttpService")
+local TweenService = game:GetService("TweenService")
 local me = Players.LocalPlayer
-local ContentProvider = game:GetService(loadstring(base64decode("Q29udGVudFByb3ZpZGVy"))())
+local ContentProvider = game:GetService("ContentProvider")
 
+-- Iconos de like/dislike. true = se cargan como miniatura (sirve con ID de imagen o de Decal);
+-- false = rbxassetid directo (solo sirve con ID de imagen)
 local ICON_AS_THUMB = true
 local function iconUrl(tex)
-	local id = tostring(tex):gsub(loadstring(base64decode("JUQ="))(), loadstring(base64decode(""))())
+	local id = tostring(tex):gsub("%D", "")
 	if ICON_AS_THUMB then
-		return loadstring(base64decode("cmJ4dGh1bWI6Ly90eXBlPUFzc2V0JmlkPQ=="))() .. id .. loadstring(base64decode("Jnc9MTUwJmg9MTUw"))()
+		return "rbxthumb://type=Asset&id=" .. id .. "&w=150&h=150"
 	end
-	return loadstring(base64decode("cmJ4YXNzZXRpZDovLw=="))() .. id
+	return "rbxassetid://" .. id
 end
 local ICON_LIKE_OFF, ICON_LIKE_ON = iconUrl(TEX_LIKE_OFF), iconUrl(TEX_LIKE_ON)
 local ICON_DISLIKE_OFF, ICON_DISLIKE_ON = iconUrl(TEX_DISLIKE_OFF), iconUrl(TEX_DISLIKE_ON)
 
+-- Precarga los 4 iconos para que al votar cambien al instante
 task.spawn(function()
 	local list = {}
 	for _, u in ipairs({ ICON_LIKE_OFF, ICON_LIKE_ON, ICON_DISLIKE_OFF, ICON_DISLIKE_ON }) do
-		local im = Instance.new(loadstring(base64decode("SW1hZ2VMYWJlbA=="))())
+		local im = Instance.new("ImageLabel")
 		im.Image = u
 		table.insert(list, im)
 	end
@@ -42,11 +44,11 @@ task.spawn(function()
 	end)
 end)
 
-DB_URL = DB_URL:gsub(loadstring(base64decode("Lysk"))(), loadstring(base64decode(""))())
+DB_URL = DB_URL:gsub("/+$", "")
 local httpRequest = request or http_request or (syn and syn.request) or (http and http.request)
 local SpaceHub = loadstring(game:HttpGet(LIB_URL))()
 
-local NOW = { [loadstring(base64decode("LnN2"))()] = loadstring(base64decode("dGltZXN0YW1w"))() }
+local NOW = { [".sv"] = "timestamp" }
 
 local function notify(title, content, d)
 	pcall(function()
@@ -54,13 +56,13 @@ local function notify(title, content, d)
 	end)
 end
 
-local AUTH_FILE = loadstring(base64decode("U3BhY2VIdWIvQ29tbXVuaXR5X0F1dGguanNvbg=="))()
+local AUTH_FILE = "SpaceHub/Community_Auth.json"
 local session = { exp = 0 }
 
 local function saveAuth()
 	pcall(function()
-		if isfolder and makefolder and not isfolder(loadstring(base64decode("U3BhY2VIdWI="))()) then
-			makefolder(loadstring(base64decode("U3BhY2VIdWI="))())
+		if isfolder and makefolder and not isfolder("SpaceHub") then
+			makefolder("SpaceHub")
 		end
 		writefile(AUTH_FILE, HttpService:JSONEncode({ refreshToken = session.refreshToken }))
 	end)
@@ -79,10 +81,10 @@ local function http(method, url, body, headers)
 	local ok, res = pcall(httpRequest, {
 		Url = url,
 		Method = method,
-		Headers = headers or { [loadstring(base64decode("Q29udGVudC1UeXBl"))()] = loadstring(base64decode("YXBwbGljYXRpb24vanNvbg=="))() },
+		Headers = headers or { ["Content-Type"] = "application/json" },
 		Body = body,
 	})
-	if not ok or type(res) ~= loadstring(base64decode("dGFibGU="))() then
+	if not ok or type(res) ~= "table" then
 		return nil, nil
 	end
 	local data
@@ -98,10 +100,10 @@ local function ensureAuth()
 	end
 	if session.refreshToken then
 		local code, d = http(
-			loadstring(base64decode("UE9TVA=="))(),
-			loadstring(base64decode("aHR0cHM6Ly9zZWN1cmV0b2tlbi5nb29nbGVhcGlzLmNvbS92MS90b2tlbj9rZXk9"))() .. API_KEY,
-			loadstring(base64decode("Z3JhbnRfdHlwZT1yZWZyZXNoX3Rva2VuJnJlZnJlc2hfdG9rZW49"))() .. HttpService:UrlEncode(session.refreshToken),
-			{ [loadstring(base64decode("Q29udGVudC1UeXBl"))()] = loadstring(base64decode("YXBwbGljYXRpb24veC13d3ctZm9ybS11cmxlbmNvZGVk"))() }
+			"POST",
+			"https://securetoken.googleapis.com/v1/token?key=" .. API_KEY,
+			"grant_type=refresh_token&refresh_token=" .. HttpService:UrlEncode(session.refreshToken),
+			{ ["Content-Type"] = "application/x-www-form-urlencoded" }
 		)
 		if code == 200 and d and d.id_token then
 			session.idToken, session.refreshToken, session.uid = d.id_token, d.refresh_token, d.user_id
@@ -111,8 +113,8 @@ local function ensureAuth()
 		end
 	end
 	local code, d = http(
-		loadstring(base64decode("UE9TVA=="))(),
-		loadstring(base64decode("aHR0cHM6Ly9pZGVudGl0eXRvb2xraXQuZ29vZ2xlYXBpcy5jb20vdjEvYWNjb3VudHM6c2lnblVwP2tleT0="))() .. API_KEY,
+		"POST",
+		"https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=" .. API_KEY,
 		HttpService:JSONEncode({ returnSecureToken = true })
 	)
 	if code == 200 and d and d.idToken then
@@ -124,25 +126,27 @@ local function ensureAuth()
 	return false
 end
 
+-- body puede ser tabla (JSON) o un valor simple (numero)
 local function db(method, path, body, query)
 	if not ensureAuth() then
 		return nil, nil
 	end
-	local url = DB_URL .. loadstring(base64decode("Lw=="))() .. path .. loadstring(base64decode("Lmpzb24/YXV0aD0="))() .. session.idToken .. (query and (loadstring(base64decode("Jg=="))() .. query) or loadstring(base64decode(""))())
+	local url = DB_URL .. "/" .. path .. ".json?auth=" .. session.idToken .. (query and ("&" .. query) or "")
 	local payload
 	if body ~= nil then
-		payload = type(body) == loadstring(base64decode("dGFibGU="))() and HttpService:JSONEncode(body) or tostring(body)
+		payload = type(body) == "table" and HttpService:JSONEncode(body) or tostring(body)
 	end
 	return http(method, url, payload)
 end
 
-local LOAD_LIMIT = 100
+local LOAD_LIMIT = 100 -- cuantos scripts recientes se cargan (el buscador y el orden trabajan sobre estos)
 
+-- Cuenta entradas de una tabla (views / execs) o votos con valor v
 local function countTbl(t, v)
 	local n = 0
-	if type(t) == loadstring(base64decode("dGFibGU="))() then
-		for _, ftNvrX4N in pairs(t) do
-			if v == nil or ftNvrX4N == v then
+	if type(t) == "table" then
+		for _, x in pairs(t) do
+			if v == nil or x == v then
 				n = n + 1
 			end
 		end
@@ -150,26 +154,28 @@ local function countTbl(t, v)
 	return n
 end
 
+-- Registra una vista / ejecucion (una por persona). kind = "views" | "execs"
 local function markStat(kind, id)
 	if not id then
 		return
 	end
 	task.spawn(function()
 		if ensureAuth() then
-			db(loadstring(base64decode("UFVU"))(), loadstring(base64decode("c2NyaXB0cy8="))() .. id .. loadstring(base64decode("Lw=="))() .. kind .. loadstring(base64decode("Lw=="))() .. session.uid, 1)
+			db("PUT", "scripts/" .. id .. "/" .. kind .. "/" .. session.uid, 1)
 		end
 	end)
 end
 
+-- Igual que las reglas de Firebase: debe haber al menos una linea de codigo real (no solo comentarios / letras)
 local function hasRealCode(code)
-	code = tostring(code or loadstring(base64decode(""))())
-	code = code:gsub(loadstring(base64decode("JS0lLSVbKD0qKSVbLi0lXSUxJV0="))(), loadstring(base64decode(""))())
-	code = code:gsub(loadstring(base64decode("JS0lLVteXG5dKg=="))(), loadstring(base64decode(""))())
-	for line in code:gmatch(loadstring(base64decode("W15cbl0r"))()) do
-		local l = line:gsub(loadstring(base64decode("XiVzKw=="))(), loadstring(base64decode(""))())
-		if l:match(loadstring(base64decode("XmxvY2FsJXMrWyVhX10="))()) or l:match(loadstring(base64decode("XmZ1bmN0aW9uWyVzKF0="))()) or l:match(loadstring(base64decode("XmlmWyVzKF0="))())
-			or l:match(loadstring(base64decode("XndoaWxlWyVzKF0="))()) or l:match(loadstring(base64decode("XmZvclslcyhd"))()) or l:match(loadstring(base64decode("XnJlcGVhdCVmWyVXXQ=="))())
-			or l:match(loadstring(base64decode("XnJldHVyblslcyhd"))()) or l:match(loadstring(base64decode("XlslYV9dWyV3XyUuOiVbJV1dKiVzKls9KF0="))()) then
+	code = tostring(code or "")
+	code = code:gsub("%-%-%[(=*)%[.-%]%1%]", "")
+	code = code:gsub("%-%-[^\n]*", "")
+	for line in code:gmatch("[^\n]+") do
+		local l = line:gsub("^%s+", "")
+		if l:match("^local%s+[%a_]") or l:match("^function[%s(]") or l:match("^if[%s(]")
+			or l:match("^while[%s(]") or l:match("^for[%s(]") or l:match("^repeat%f[%W]")
+			or l:match("^return[%s(]") or l:match("^[%a_][%w_%.:%[%]]*%s*[=(]") then
 			return true
 		end
 	end
@@ -188,7 +194,7 @@ local function mk(class, props, parent)
 	return o
 end
 local function round(o, r)
-	mk(loadstring(base64decode("VUlDb3JuZXI="))(), { CornerRadius = UDim.new(0, r or 8) }, o)
+	mk("UICorner", { CornerRadius = UDim.new(0, r or 8) }, o)
 end
 local function label(parent, props)
 	local p = { BackgroundTransparency = 1, Font = Enum.Font.Gotham, TextSize = 12, TextColor3 = TXT,
@@ -196,44 +202,45 @@ local function label(parent, props)
 	for k, v in pairs(props) do
 		p[k] = v
 	end
-	return mk(loadstring(base64decode("VGV4dExhYmVs"))(), p, parent)
+	return mk("TextLabel", p, parent)
 end
-local function smallButton(parent, text, color, ftNvrX4N, w)
-	local b = mk(loadstring(base64decode("VGV4dEJ1dHRvbg=="))(), {
-		Position = UDim2.fromOffset(ftNvrX4N, 0), Size = UDim2.fromOffset(w, 28), BackgroundColor3 = color,
+local function smallButton(parent, text, color, x, w)
+	local b = mk("TextButton", {
+		Position = UDim2.fromOffset(x, 0), Size = UDim2.fromOffset(w, 28), BackgroundColor3 = color,
 		AutoButtonColor = true, Text = text, Font = Enum.Font.GothamMedium, TextSize = 12, TextColor3 = TXT,
 	}, parent)
 	round(b, 6)
 	return b
 end
 local function fmtDate(ms)
-	return os.date(loadstring(base64decode("JWQvJW0vJVkgJUg6JU0="))(), math.floor((tonumber(ms) or 0) / 1000))
+	return os.date("%d/%m/%Y %H:%M", math.floor((tonumber(ms) or 0) / 1000))
 end
 local function imageUrl(id)
-	id = tostring(id or loadstring(base64decode(""))()):gsub(loadstring(base64decode("JUQ="))(), loadstring(base64decode(""))())
-	return id ~= loadstring(base64decode(""))() and (loadstring(base64decode("cmJ4dGh1bWI6Ly90eXBlPUFzc2V0JmlkPQ=="))() .. id .. loadstring(base64decode("Jnc9NDIwJmg9NDIw"))()) or nil
+	id = tostring(id or ""):gsub("%D", "")
+	return id ~= "" and ("rbxthumb://type=Asset&id=" .. id .. "&w=420&h=420") or nil
 end
 local function dateText(d, preview)
-	local t = loadstring(base64decode("UHVibGljYWRvOiA="))() .. (preview and loadstring(base64decode("YWhvcmEgKHZpc3RhIHByZXZpYSk="))() or fmtDate(d.createdAt))
+	local t = "Publicado: " .. (preview and "ahora (vista previa)" or fmtDate(d.createdAt))
 	if d.editedAt then
-		t = t .. loadstring(base64decode("ICA8Zm9udCBjb2xvcj0nI0ZGQjg0RCc+KGVkaXRhZG8g"))() .. fmtDate(d.editedAt) .. loadstring(base64decode("KTwvZm9udD4="))()
+		t = t .. "  <font color='#FFB84D'>(editado " .. fmtDate(d.editedAt) .. ")</font>"
 	end
 	return t
 end
 
+-- Barra de likes y dislikes. votes = { [uid] = 1 | -1 }
 local function reactionBar(parent, order, path, votes)
-	votes = type(votes) == loadstring(base64decode("dGFibGU="))() and votes or {}
-	local bar = mk(loadstring(base64decode("RnJhbWU="))(), { LayoutOrder = order, Size = UDim2.new(1, 0, 0, 28), BackgroundTransparency = 1 }, parent)
-	local function imgBtn(ftNvrX4N, rot)
-		return mk(loadstring(base64decode("SW1hZ2VCdXR0b24="))(), { Position = UDim2.fromOffset(ftNvrX4N, 2), Size = UDim2.fromOffset(24, 24),
-			BackgroundTransparency = 1, ScaleType = Enum.ScaleType.Fit, Image = loadstring(base64decode(""))(), ImageColor3 = Color3.new(1, 1, 1),
+	votes = type(votes) == "table" and votes or {}
+	local bar = mk("Frame", { LayoutOrder = order, Size = UDim2.new(1, 0, 0, 28), BackgroundTransparency = 1 }, parent)
+	local function imgBtn(x, rot)
+		return mk("ImageButton", { Position = UDim2.fromOffset(x, 2), Size = UDim2.fromOffset(24, 24),
+			BackgroundTransparency = 1, ScaleType = Enum.ScaleType.Fit, Image = "", ImageColor3 = Color3.new(1, 1, 1),
 			ImageTransparency = 0, Rotation = rot }, bar)
 	end
 	local likeB = imgBtn(0, ROT_LIKE)
-	local likeC = label(bar, { Position = UDim2.fromOffset(28, 0), Size = UDim2.fromOffset(36, 28), Text = loadstring(base64decode("MA=="))(),
+	local likeC = label(bar, { Position = UDim2.fromOffset(28, 0), Size = UDim2.fromOffset(36, 28), Text = "0",
 		Font = Enum.Font.GothamMedium, TextSize = 13 })
 	local disB = imgBtn(68, ROT_DISLIKE)
-	local disC = label(bar, { Position = UDim2.fromOffset(96, 0), Size = UDim2.fromOffset(36, 28), Text = loadstring(base64decode("MA=="))(),
+	local disC = label(bar, { Position = UDim2.fromOffset(96, 0), Size = UDim2.fromOffset(36, 28), Text = "0",
 		Font = Enum.Font.GothamMedium, TextSize = 13 })
 
 	local function render()
@@ -261,7 +268,7 @@ local function reactionBar(parent, order, path, votes)
 		busy = true
 		task.spawn(function()
 			if not ensureAuth() then
-				notify(loadstring(base64decode("RXJyb3I="))(), loadstring(base64decode("Tm8gc2UgcHVkbyBpbmljaWFyIHNlc2lvbiBlbiBGaXJlYmFzZS4="))())
+				notify("Error", "No se pudo iniciar sesion en Firebase.")
 				busy = false
 				return
 			end
@@ -272,14 +279,14 @@ local function reactionBar(parent, order, path, votes)
 			render()
 			local code
 			if new then
-				code = db(loadstring(base64decode("UFVU"))(), path .. loadstring(base64decode("Lw=="))() .. uid, new)
+				code = db("PUT", path .. "/" .. uid, new)
 			else
-				code = db(loadstring(base64decode("REVMRVRF"))(), path .. loadstring(base64decode("Lw=="))() .. uid)
+				code = db("DELETE", path .. "/" .. uid)
 			end
 			if code ~= 200 then
 				votes[uid] = prev
 				render()
-				notify(loadstring(base64decode("RXJyb3I="))(), loadstring(base64decode("Tm8gc2UgcHVkbyByZWdpc3RyYXIgdHUgdm90byAoY29kaWdvIA=="))() .. tostring(code) .. loadstring(base64decode("KS4="))())
+				notify("Error", "No se pudo registrar tu voto (codigo " .. tostring(code) .. ").")
 			end
 			busy = false
 		end)
@@ -293,66 +300,68 @@ local function reactionBar(parent, order, path, votes)
 	return bar
 end
 
+-- opts: id, full (pagina completa), preview, onOpen, onEdit, onDeleted
 local function buildCard(parent, d, order, opts)
 	opts = opts or {}
-	local card = mk(loadstring(base64decode("RnJhbWU="))(), {
+	local card = mk("Frame", {
 		LayoutOrder = order, Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y,
 		BackgroundColor3 = BG, BorderSizePixel = 0,
 	}, parent)
 	round(card)
-	mk(loadstring(base64decode("VUlQYWRkaW5n"))(), { PaddingTop = UDim.new(0, 10), PaddingBottom = UDim.new(0, 10),
+	mk("UIPadding", { PaddingTop = UDim.new(0, 10), PaddingBottom = UDim.new(0, 10),
 		PaddingLeft = UDim.new(0, 10), PaddingRight = UDim.new(0, 10) }, card)
-	mk(loadstring(base64decode("VUlMaXN0TGF5b3V0"))(), { Padding = UDim.new(0, 8), SortOrder = Enum.SortOrder.LayoutOrder }, card)
+	mk("UIListLayout", { Padding = UDim.new(0, 8), SortOrder = Enum.SortOrder.LayoutOrder }, card)
 
-	local head = mk(loadstring(base64decode("RnJhbWU="))(), { LayoutOrder = 1, Size = UDim2.new(1, 0, 0, 72), BackgroundTransparency = 1 }, card)
-	local thumb = mk(loadstring(base64decode("SW1hZ2VMYWJlbA=="))(), {
+	local head = mk("Frame", { LayoutOrder = 1, Size = UDim2.new(1, 0, 0, 72), BackgroundTransparency = 1 }, card)
+	local thumb = mk("ImageLabel", {
 		Size = UDim2.fromOffset(72, 72), BackgroundColor3 = BG2, BorderSizePixel = 0,
-		ScaleType = Enum.ScaleType.Crop, Image = imageUrl(d.imageId) or loadstring(base64decode(""))(),
+		ScaleType = Enum.ScaleType.Crop, Image = imageUrl(d.imageId) or "",
 	}, head)
 	round(thumb, 8)
 	if not imageUrl(d.imageId) then
-		label(thumb, { Size = UDim2.fromScale(1, 1), Text = loadstring(base64decode("U2luIGltYWdlbg=="))(), TextSize = 10, TextColor3 = MUTED,
+		label(thumb, { Size = UDim2.fromScale(1, 1), Text = "Sin imagen", TextSize = 10, TextColor3 = MUTED,
 			TextXAlignment = Enum.TextXAlignment.Center, TextWrapped = true })
 	end
 	label(head, { Position = UDim2.fromOffset(82, 0), Size = UDim2.new(1, -82, 0, 22),
-		Text = (d.name ~= nil and d.name ~= loadstring(base64decode(""))()) and d.name or loadstring(base64decode("KHNpbiBub21icmUp"))(), Font = Enum.Font.GothamBold, TextSize = 15 })
-	local av = mk(loadstring(base64decode("SW1hZ2VMYWJlbA=="))(), {
+		Text = (d.name ~= nil and d.name ~= "") and d.name or "(sin nombre)", Font = Enum.Font.GothamBold, TextSize = 15 })
+	local av = mk("ImageLabel", {
 		Position = UDim2.fromOffset(82, 28), Size = UDim2.fromOffset(20, 20), BackgroundColor3 = BG2, BorderSizePixel = 0,
-		Image = loadstring(base64decode("cmJ4dGh1bWI6Ly90eXBlPUF2YXRhckhlYWRTaG90JmlkPQ=="))() .. tostring(d.ownerUserId or 1) .. loadstring(base64decode("Jnc9MTUwJmg9MTUw"))(),
+		Image = "rbxthumb://type=AvatarHeadShot&id=" .. tostring(d.ownerUserId or 1) .. "&w=150&h=150",
 	}, head)
 	round(av, 10)
-	local shown = (d.ownerDisplay and d.ownerDisplay ~= loadstring(base64decode(""))()) and d.ownerDisplay or tostring(d.ownerName)
+	local shown = (d.ownerDisplay and d.ownerDisplay ~= "") and d.ownerDisplay or tostring(d.ownerName)
 	label(head, { Position = UDim2.fromOffset(108, 28), Size = UDim2.new(1, -108, 0, 20),
-		Text = shown .. loadstring(base64decode("ICAoQA=="))() .. tostring(d.ownerName) .. loadstring(base64decode("IC0gSUQg"))() .. tostring(d.ownerUserId) .. loadstring(base64decode("KQ=="))(),
+		Text = shown .. "  (@" .. tostring(d.ownerName) .. " - ID " .. tostring(d.ownerUserId) .. ")",
 		TextColor3 = BLUE, TextSize = 12 })
 	label(head, { Position = UDim2.fromOffset(82, 52), Size = UDim2.new(1, -82, 0, 18),
 		Text = dateText(d, opts.preview), RichText = true, TextColor3 = MUTED, TextSize = 11 })
 
-	local code = tostring(d.script or loadstring(base64decode(""))())
-	local box = mk(loadstring(base64decode("RnJhbWU="))(), { LayoutOrder = 2, Size = UDim2.new(1, 0, 0, 70), BackgroundColor3 = BG2,
+	local code = tostring(d.script or "")
+	local box = mk("Frame", { LayoutOrder = 2, Size = UDim2.new(1, 0, 0, 70), BackgroundColor3 = BG2,
 		BorderSizePixel = 0, ClipsDescendants = true }, card)
 	round(box, 6)
 	if opts.full then
 		box.Size = UDim2.new(1, 0, 0, 0)
 		box.AutomaticSize = Enum.AutomaticSize.Y
 		box.ClipsDescendants = false
-		mk(loadstring(base64decode("VUlMaXN0TGF5b3V0"))(), {}, box)
-		mk(loadstring(base64decode("VUlQYWRkaW5n"))(), { PaddingTop = UDim.new(0, 8), PaddingBottom = UDim.new(0, 8),
+		mk("UIListLayout", {}, box)
+		mk("UIPadding", { PaddingTop = UDim.new(0, 8), PaddingBottom = UDim.new(0, 8),
 			PaddingLeft = UDim.new(0, 8), PaddingRight = UDim.new(0, 8) }, box)
 		label(box, { Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y,
-			Text = code:sub(1, 16000) .. (#code > 16000 and loadstring(base64decode("XG4uLi4gKHVzYSBDb3BpYXIgc2NyaXB0IHBhcmEgZWwgdGV4dG8gY29tcGxldG8p"))() or loadstring(base64decode(""))()),
+			Text = code:sub(1, 16000) .. (#code > 16000 and "\n... (usa Copiar script para el texto completo)" or ""),
 			Font = Enum.Font.Code, TextSize = 11, TextColor3 = TXT, TextWrapped = true,
 			TextTruncate = Enum.TextTruncate.None, TextYAlignment = Enum.TextYAlignment.Top })
 	else
 		label(box, { Position = UDim2.fromOffset(8, 6), Size = UDim2.new(1, -16, 1, -12),
-			Text = #code > 0 and (code:sub(1, 400) .. (#code > 400 and loadstring(base64decode("XG4uLi4="))() or loadstring(base64decode(""))())) or loadstring(base64decode("KGVsIHRleHRvIGRlbCBzY3JpcHQgYXBhcmVjZXJhIGFxdWkp"))(),
+			Text = #code > 0 and (code:sub(1, 400) .. (#code > 400 and "\n..." or "")) or "(el texto del script aparecera aqui)",
 			Font = Enum.Font.Code, TextSize = 11, TextColor3 = MUTED, TextWrapped = true, TextTruncate = Enum.TextTruncate.None,
 			TextYAlignment = Enum.TextYAlignment.Top })
 	end
 
+	-- Tocar el encabezado o el codigo abre la pagina completa
 	if opts.onOpen and not opts.preview and not opts.full then
 		for _, target in ipairs({ head, box }) do
-			local ov = mk(loadstring(base64decode("VGV4dEJ1dHRvbg=="))(), { Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1, Text = loadstring(base64decode(""))(),
+			local ov = mk("TextButton", { Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1, Text = "",
 				ZIndex = 10 }, target)
 			ov.Activated:Connect(function()
 				opts.onOpen(d)
@@ -361,11 +370,12 @@ local function buildCard(parent, d, order, opts)
 	end
 
 	if not opts.preview then
+		-- Boton "Direct execute": solo aparece en la pagina completa del script
 		if opts.full then
-			local runRow = mk(loadstring(base64decode("RnJhbWU="))(), { LayoutOrder = 3, Size = UDim2.new(1, 0, 0, 34), BackgroundTransparency = 1 }, card)
-			local run = mk(loadstring(base64decode("VGV4dEJ1dHRvbg=="))(), {
+			local runRow = mk("Frame", { LayoutOrder = 3, Size = UDim2.new(1, 0, 0, 34), BackgroundTransparency = 1 }, card)
+			local run = mk("TextButton", {
 				Size = UDim2.fromScale(1, 1), BackgroundColor3 = Color3.fromRGB(40, 160, 90), BorderSizePixel = 0,
-				AutoButtonColor = true, Text = loadstring(base64decode("RGlyZWN0IGV4ZWN1dGU="))(), Font = Enum.Font.GothamBold, TextSize = 13,
+				AutoButtonColor = true, Text = "Direct execute", Font = Enum.Font.GothamBold, TextSize = 13,
 				TextColor3 = TXT,
 			}, runRow)
 			round(run, 6)
@@ -375,111 +385,111 @@ local function buildCard(parent, d, order, opts)
 					return
 				end
 				running = true
-				run.Text = loadstring(base64decode("RWplY3V0YW5kby4uLg=="))()
-				markStat(loadstring(base64decode("ZXhlY3M="))(), opts.id)
+				run.Text = "Ejecutando..."
+				markStat("execs", opts.id)
 				local fn, err = loadstring(code)
 				if fn then
-					notify(loadstring(base64decode("RGlyZWN0IGV4ZWN1dGU="))(), 'loadstring(base64decode("JyAuLiB0b3N0cmluZyhkLm5hbWUpIC4uICc="))() se esta ejecutando.', 3)
+					notify("Direct execute", '"' .. tostring(d.name) .. '" se esta ejecutando.', 3)
 					task.spawn(function()
 						local ok, e = pcall(fn)
 						if not ok then
-							notify(loadstring(base64decode("RXJyb3IgYWwgZWplY3V0YXI="))(), tostring(e), 6)
+							notify("Error al ejecutar", tostring(e), 6)
 						end
 					end)
 				else
-					notify(loadstring(base64decode("RXJyb3IgZW4gZWwgc2NyaXB0"))(), tostring(err), 6)
+					notify("Error en el script", tostring(err), 6)
 				end
 				task.delay(1.5, function()
 					running = false
 					if run.Parent then
-						run.Text = loadstring(base64decode("RGlyZWN0IGV4ZWN1dGU="))()
+						run.Text = "Direct execute"
 					end
 				end)
 			end)
 		end
 
-		local bar = mk(loadstring(base64decode("RnJhbWU="))(), { LayoutOrder = 4, Size = UDim2.new(1, 0, 0, 28), BackgroundTransparency = 1 }, card)
-		local copy = smallButton(bar, loadstring(base64decode("Q29waWFyIHNjcmlwdA=="))(), Color3.fromRGB(46, 110, 200), 0, 110)
+		local bar = mk("Frame", { LayoutOrder = 4, Size = UDim2.new(1, 0, 0, 28), BackgroundTransparency = 1 }, card)
+		local copy = smallButton(bar, "Copiar script", Color3.fromRGB(46, 110, 200), 0, 110)
 		copy.Activated:Connect(function()
 			local fn = setclipboard or toclipboard
 			if fn then
 				pcall(fn, code)
-				markStat(loadstring(base64decode("ZXhlY3M="))(), opts.id)
-				notify(loadstring(base64decode("Q29waWFkbw=="))(), 'loadstring(base64decode("JyAuLiB0b3N0cmluZyhkLm5hbWUpIC4uICc="))() copiado al portapapeles.', 2)
+				markStat("execs", opts.id)
+				notify("Copiado", '"' .. tostring(d.name) .. '" copiado al portapapeles.', 2)
 			else
-				notify(loadstring(base64decode("Tm8gZGlzcG9uaWJsZQ=="))(), loadstring(base64decode("VHUgZXhlY3V0b3Igbm8gc29wb3J0YSBwb3J0YXBhcGVsZXMu"))())
+				notify("No disponible", "Tu executor no soporta portapapeles.")
 			end
 		end)
 		if d.ownerUid and d.ownerUid == session.uid then
-			local edit = smallButton(bar, loadstring(base64decode("RWRpdGFy"))(), Color3.fromRGB(90, 90, 120), 118, 80)
+			local edit = smallButton(bar, "Editar", Color3.fromRGB(90, 90, 120), 118, 80)
 			edit.Activated:Connect(function()
 				if opts.onEdit then
 					opts.onEdit(d)
 				end
 			end)
-			local del = smallButton(bar, loadstring(base64decode("RWxpbWluYXI="))(), Color3.fromRGB(180, 55, 60), 206, 120)
+			local del = smallButton(bar, "Eliminar", Color3.fromRGB(180, 55, 60), 206, 120)
 			local armed = false
 			del.Activated:Connect(function()
 				if not armed then
 					armed = true
-					del.Text = loadstring(base64decode("U2VndXJvPyBUb2NhIG90cmEgdmV6"))()
+					del.Text = "Seguro? Toca otra vez"
 					task.delay(3, function()
 						armed = false
 						if del.Parent then
-							del.Text = loadstring(base64decode("RWxpbWluYXI="))()
+							del.Text = "Eliminar"
 						end
 					end)
 					return
 				end
-				del.Text = loadstring(base64decode("RWxpbWluYW5kby4uLg=="))()
-				local c = db(loadstring(base64decode("REVMRVRF"))(), loadstring(base64decode("c2NyaXB0cy8="))() .. opts.id)
+				del.Text = "Eliminando..."
+				local c = db("DELETE", "scripts/" .. opts.id)
 				if c == 200 then
-					notify(loadstring(base64decode("RWxpbWluYWRv"))(), loadstring(base64decode("VHUgc2NyaXB0IGZ1ZSBlbGltaW5hZG8u"))(), 3)
+					notify("Eliminado", "Tu script fue eliminado.", 3)
 					if opts.onDeleted then
 						opts.onDeleted()
 					end
 				else
-					notify(loadstring(base64decode("RXJyb3I="))(), loadstring(base64decode("Tm8gc2UgcHVkbyBlbGltaW5hciAoY29kaWdvIA=="))() .. tostring(c) .. loadstring(base64decode("KS4="))())
-					del.Text = loadstring(base64decode("RWxpbWluYXI="))()
+					notify("Error", "No se pudo eliminar (codigo " .. tostring(c) .. ").")
+					del.Text = "Eliminar"
 					armed = false
 				end
 			end)
 		end
-		local rbar = reactionBar(card, 5, loadstring(base64decode("c2NyaXB0cy8="))() .. opts.id .. loadstring(base64decode("L3ZvdGVz"))(), d.votes)
+		local rbar = reactionBar(card, 5, "scripts/" .. opts.id .. "/votes", d.votes)
 		label(rbar, { Position = UDim2.fromOffset(140, 0), Size = UDim2.new(1, -140, 0, 28),
-			Text = loadstring(base64decode("VmlzdGFzOiA="))() .. countTbl(d.views) .. loadstring(base64decode("ICB8ICBFamVjOiA="))() .. countTbl(d.execs),
+			Text = "Vistas: " .. countTbl(d.views) .. "  |  Ejec: " .. countTbl(d.execs),
 			TextColor3 = MUTED, TextSize = 11 })
 	end
 	return card
 end
 
 local function buildChatCard(parent, d, order, sid, onEdit)
-	local card = mk(loadstring(base64decode("RnJhbWU="))(), {
+	local card = mk("Frame", {
 		LayoutOrder = order, Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y,
 		BackgroundColor3 = BG2, BorderSizePixel = 0,
 	}, parent)
 	round(card)
-	mk(loadstring(base64decode("VUlQYWRkaW5n"))(), { PaddingTop = UDim.new(0, 8), PaddingBottom = UDim.new(0, 6),
+	mk("UIPadding", { PaddingTop = UDim.new(0, 8), PaddingBottom = UDim.new(0, 6),
 		PaddingLeft = UDim.new(0, 10), PaddingRight = UDim.new(0, 10) }, card)
-	mk(loadstring(base64decode("VUlMaXN0TGF5b3V0"))(), { Padding = UDim.new(0, 4), SortOrder = Enum.SortOrder.LayoutOrder }, card)
+	mk("UIListLayout", { Padding = UDim.new(0, 4), SortOrder = Enum.SortOrder.LayoutOrder }, card)
 
-	local head = mk(loadstring(base64decode("RnJhbWU="))(), { LayoutOrder = 1, Size = UDim2.new(1, 0, 0, 22), BackgroundTransparency = 1 }, card)
-	local av = mk(loadstring(base64decode("SW1hZ2VMYWJlbA=="))(), { Size = UDim2.fromOffset(22, 22), BackgroundColor3 = BG, BorderSizePixel = 0,
-		Image = loadstring(base64decode("cmJ4dGh1bWI6Ly90eXBlPUF2YXRhckhlYWRTaG90JmlkPQ=="))() .. tostring(d.ownerUserId or 1) .. loadstring(base64decode("Jnc9MTUwJmg9MTUw"))() }, head)
+	local head = mk("Frame", { LayoutOrder = 1, Size = UDim2.new(1, 0, 0, 22), BackgroundTransparency = 1 }, card)
+	local av = mk("ImageLabel", { Size = UDim2.fromOffset(22, 22), BackgroundColor3 = BG, BorderSizePixel = 0,
+		Image = "rbxthumb://type=AvatarHeadShot&id=" .. tostring(d.ownerUserId or 1) .. "&w=150&h=150" }, head)
 	round(av, 11)
-	local shown = (d.ownerDisplay and d.ownerDisplay ~= loadstring(base64decode(""))()) and d.ownerDisplay or tostring(d.ownerName)
+	local shown = (d.ownerDisplay and d.ownerDisplay ~= "") and d.ownerDisplay or tostring(d.ownerName)
 	label(head, { Position = UDim2.fromOffset(28, 0), Size = UDim2.new(1, -28, 1, 0),
-		Text = shown .. loadstring(base64decode("ICAoQA=="))() .. tostring(d.ownerName) .. loadstring(base64decode("KQ=="))(), TextColor3 = BLUE, Font = Enum.Font.GothamMedium })
+		Text = shown .. "  (@" .. tostring(d.ownerName) .. ")", TextColor3 = BLUE, Font = Enum.Font.GothamMedium })
 
 	label(card, { LayoutOrder = 2, Size = UDim2.new(1, 0, 0, 14), Text = dateText(d, false), RichText = true,
 		TextColor3 = MUTED, TextSize = 10 })
 	label(card, { LayoutOrder = 3, Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y,
-		Text = tostring(d.text or loadstring(base64decode(""))()), TextSize = 13, TextWrapped = true, TextTruncate = Enum.TextTruncate.None,
+		Text = tostring(d.text or ""), TextSize = 13, TextWrapped = true, TextTruncate = Enum.TextTruncate.None,
 		TextYAlignment = Enum.TextYAlignment.Top })
 
-	local bar = reactionBar(card, 4, loadstring(base64decode("Y2hhdC8="))() .. sid .. loadstring(base64decode("Lw=="))() .. d.__id .. loadstring(base64decode("L3ZvdGVz"))(), d.votes)
+	local bar = reactionBar(card, 4, "chat/" .. sid .. "/" .. d.__id .. "/votes", d.votes)
 	if d.ownerUid and d.ownerUid == session.uid then
-		local edit = smallButton(bar, loadstring(base64decode("RWRpdGFy"))(), Color3.fromRGB(90, 90, 120), 150, 80)
+		local edit = smallButton(bar, "Editar", Color3.fromRGB(90, 90, 120), 150, 80)
 		edit.Activated:Connect(function()
 			onEdit(d)
 		end)
@@ -487,55 +497,58 @@ local function buildChatCard(parent, d, order, sid, onEdit)
 	return card
 end
 
-if DB_URL:find(loadstring(base64decode("VFUlLVBST1lFQ1RP"))()) or API_KEY == loadstring(base64decode("VFVfQVBJX0tFWV9XRUI="))() then
-	warn(loadstring(base64decode("W0NvbXVuaWRhZF0gQ29uZmlndXJhIERCX1VSTCB5IEFQSV9LRVkgZGUgRmlyZWJhc2UgYWwgaW5pY2lvIGRlbCBzY3JpcHQu"))())
+if DB_URL:find("TU%-PROYECTO") or API_KEY == "TU_API_KEY_WEB" then
+	warn("[Comunidad] Configura DB_URL y API_KEY de Firebase al inicio del script.")
 end
 
-local Window = SpaceHub:CreateWindow({ Name = loadstring(base64decode("Q29tdW5pZGFkIGRlIFNjcmlwdHM="))() })
+local Window = SpaceHub:CreateWindow({ Name = "Comunidad de Scripts" })
 local winRef = SpaceHub._window
 
-local Feed = Window:CreateTab(loadstring(base64decode("Q29tdW5pZGFk"))())
-local Create = Window:CreateTab(loadstring(base64decode("Q3JlYXIgc2NyaXB0"))())
+local Feed = Window:CreateTab("Comunidad")
+local Create = Window:CreateTab("Crear script")
 
-local header = mk(loadstring(base64decode("RnJhbWU="))(), { LayoutOrder = Feed._nextOrder(), Size = UDim2.new(1, 0, 0, 56),
+----------------------------------------------------------------------
+-- INICIO: encabezado con contador de usuarios activos
+----------------------------------------------------------------------
+local header = mk("Frame", { LayoutOrder = Feed._nextOrder(), Size = UDim2.new(1, 0, 0, 56),
 	BackgroundColor3 = BG, BorderSizePixel = 0 }, Feed.Page)
 round(header)
-label(header, { Position = UDim2.fromOffset(12, 6), Size = UDim2.new(1, -150, 0, 22), Text = loadstring(base64decode("U2NyaXB0cyBkZSBsYSBjb211bmlkYWQ="))(),
+label(header, { Position = UDim2.fromOffset(12, 6), Size = UDim2.new(1, -150, 0, 22), Text = "Scripts de la comunidad",
 	Font = Enum.Font.GothamBold, TextSize = 14 })
-local dot = mk(loadstring(base64decode("RnJhbWU="))(), { Position = UDim2.fromOffset(12, 36), Size = UDim2.fromOffset(8, 8),
+local dot = mk("Frame", { Position = UDim2.fromOffset(12, 36), Size = UDim2.fromOffset(8, 8),
 	BackgroundColor3 = Color3.fromRGB(80, 220, 120), BorderSizePixel = 0 }, header)
 round(dot, 4)
 local activeLbl = label(header, { Position = UDim2.fromOffset(26, 30), Size = UDim2.new(1, -170, 0, 20),
-	Text = loadstring(base64decode("VXN1YXJpb3MgYWN0aXZvczogLi4u"))(), TextColor3 = Color3.fromRGB(120, 225, 150), Font = Enum.Font.GothamMedium })
+	Text = "Usuarios activos: ...", TextColor3 = Color3.fromRGB(120, 225, 150), Font = Enum.Font.GothamMedium })
 
-local refreshBtn = mk(loadstring(base64decode("VGV4dEJ1dHRvbg=="))(), { AnchorPoint = Vector2.new(1, 0.5), Position = UDim2.new(1, -8, 0.5, 0),
-	Size = UDim2.fromOffset(130, 32), BackgroundColor3 = BG2, AutoButtonColor = false, Text = loadstring(base64decode(""))() }, header)
+local refreshBtn = mk("TextButton", { AnchorPoint = Vector2.new(1, 0.5), Position = UDim2.new(1, -8, 0.5, 0),
+	Size = UDim2.fromOffset(130, 32), BackgroundColor3 = BG2, AutoButtonColor = false, Text = "" }, header)
 round(refreshBtn, 16)
-local ring = mk(loadstring(base64decode("RnJhbWU="))(), { AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromOffset(20, 16),
+local ring = mk("Frame", { AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromOffset(20, 16),
 	Size = UDim2.fromOffset(16, 16), BackgroundTransparency = 1 }, refreshBtn)
 round(ring, 8)
-local stroke = mk(loadstring(base64decode("VUlTdHJva2U="))(), { Thickness = 2.5, Color = BLUE }, ring)
-mk(loadstring(base64decode("VUlHcmFkaWVudA=="))(), { Transparency = NumberSequence.new({
+local stroke = mk("UIStroke", { Thickness = 2.5, Color = BLUE }, ring)
+mk("UIGradient", { Transparency = NumberSequence.new({
 	NumberSequenceKeypoint.new(0, 0), NumberSequenceKeypoint.new(0.72, 0),
 	NumberSequenceKeypoint.new(0.721, 1), NumberSequenceKeypoint.new(1, 1) }) }, stroke)
 local status = label(refreshBtn, { Position = UDim2.fromOffset(36, 0), Size = UDim2.new(1, -40, 1, 0),
-	Text = loadstring(base64decode("QWN0dWFsaXphcg=="))(), Font = Enum.Font.GothamMedium, TextSize = 12 })
+	Text = "Actualizar", Font = Enum.Font.GothamMedium, TextSize = 12 })
 
 local function updateActive()
 	if not ensureAuth() then
 		return
 	end
-	db(loadstring(base64decode("UFVU"))(), loadstring(base64decode("cHJlc2VuY2Uv"))() .. session.uid, { t = NOW })
-	local c, t = db(loadstring(base64decode("R0VU"))(), loadstring(base64decode("cHJlc2VuY2Uv"))() .. session.uid .. loadstring(base64decode("L3Q="))())
-	if c == 200 and type(t) == loadstring(base64decode("bnVtYmVy"))() then
-		local c2, d = db(loadstring(base64decode("R0VU"))(), loadstring(base64decode("cHJlc2VuY2U="))(), nil,
-			loadstring(base64decode("b3JkZXJCeT0lMjJ0JTIyJnN0YXJ0QXQ9"))() .. string.format(loadstring(base64decode("JWQ="))(), math.floor(t) - 75000))
-		if c2 == 200 and type(d) == loadstring(base64decode("dGFibGU="))() then
+	db("PUT", "presence/" .. session.uid, { t = NOW })
+	local c, t = db("GET", "presence/" .. session.uid .. "/t")
+	if c == 200 and type(t) == "number" then
+		local c2, d = db("GET", "presence", nil,
+			"orderBy=%22t%22&startAt=" .. string.format("%d", math.floor(t) - 75000))
+		if c2 == 200 and type(d) == "table" then
 			local n = 0
 			for _ in pairs(d) do
 				n = n + 1
 			end
-			activeLbl.Text = loadstring(base64decode("VXN1YXJpb3MgYWN0aXZvczog"))() .. tostring(n)
+			activeLbl.Text = "Usuarios activos: " .. tostring(n)
 		end
 	end
 end
@@ -547,7 +560,7 @@ local function setLoading(on)
 		spin = TweenService:Create(ring, TweenInfo.new(0.7, Enum.EasingStyle.Linear, Enum.EasingDirection.In, -1),
 			{ Rotation = 360 })
 		spin:Play()
-		status.Text = loadstring(base64decode("QWN0dWFsaXphbmRvLi4u"))()
+		status.Text = "Actualizando..."
 	else
 		if spin then
 			spin:Cancel()
@@ -559,46 +572,47 @@ local function setLoading(on)
 		t.Completed:Connect(function()
 			ring.Rotation = 0
 		end)
-		status.Text = loadstring(base64decode("QWN0dWFsaXphcg=="))()
+		status.Text = "Actualizar"
 	end
 end
 
+-- Buscador + "Ordenar por"
 local SORTS = {
-	{ loadstring(base64decode("ZXhlYw=="))(), loadstring(base64decode("TWF5b3IgZWplY3VjaW9u"))() }, { loadstring(base64decode("dmlld3M="))(), loadstring(base64decode("TWF5b3IgdmlzdGFz"))() }, { loadstring(base64decode("cmVjZW50"))(), loadstring(base64decode("UmVjaWVuIHB1YmxpY2Fkbw=="))() },
-	{ loadstring(base64decode("b2xkZXN0"))(), loadstring(base64decode("TWFzIGFudGlndW8="))() }, { loadstring(base64decode("ZGlzbGlrZXM="))(), loadstring(base64decode("TWFzIGRpc2xpa2Vz"))() }, { loadstring(base64decode("bGlrZXM="))(), loadstring(base64decode("TWFzIGxpa2Vz"))() },
+	{ "exec", "Mayor ejecucion" }, { "views", "Mayor vistas" }, { "recent", "Recien publicado" },
+	{ "oldest", "Mas antiguo" }, { "dislikes", "Mas dislikes" }, { "likes", "Mas likes" },
 }
-local sortMode, searchText, cache = loadstring(base64decode("cmVjZW50"))(), loadstring(base64decode(""))(), {}
+local sortMode, searchText, cache = "recent", "", {}
 local renderList
 
-local toolbar = mk(loadstring(base64decode("RnJhbWU="))(), { LayoutOrder = Feed._nextOrder(), Size = UDim2.new(1, 0, 0, 0),
+local toolbar = mk("Frame", { LayoutOrder = Feed._nextOrder(), Size = UDim2.new(1, 0, 0, 0),
 	AutomaticSize = Enum.AutomaticSize.Y, BackgroundTransparency = 1 }, Feed.Page)
-mk(loadstring(base64decode("VUlMaXN0TGF5b3V0"))(), { Padding = UDim.new(0, 6), SortOrder = Enum.SortOrder.LayoutOrder }, toolbar)
-local barRow = mk(loadstring(base64decode("RnJhbWU="))(), { LayoutOrder = 1, Size = UDim2.new(1, 0, 0, 34), BackgroundTransparency = 1 }, toolbar)
-local searchBox = mk(loadstring(base64decode("VGV4dEJveA=="))(), { Size = UDim2.new(1, -166, 1, 0), BackgroundColor3 = BG, BorderSizePixel = 0,
-	Text = loadstring(base64decode(""))(), PlaceholderText = loadstring(base64decode("QnVzY2FyIHNjcmlwdCBvIGF1dG9yLi4u"))(), PlaceholderColor3 = MUTED, TextColor3 = TXT,
+mk("UIListLayout", { Padding = UDim.new(0, 6), SortOrder = Enum.SortOrder.LayoutOrder }, toolbar)
+local barRow = mk("Frame", { LayoutOrder = 1, Size = UDim2.new(1, 0, 0, 34), BackgroundTransparency = 1 }, toolbar)
+local searchBox = mk("TextBox", { Size = UDim2.new(1, -166, 1, 0), BackgroundColor3 = BG, BorderSizePixel = 0,
+	Text = "", PlaceholderText = "Buscar script o autor...", PlaceholderColor3 = MUTED, TextColor3 = TXT,
 	Font = Enum.Font.Gotham, TextSize = 13, ClearTextOnFocus = false, TextXAlignment = Enum.TextXAlignment.Left,
 	TextTruncate = Enum.TextTruncate.AtEnd }, barRow)
 round(searchBox, 8)
-mk(loadstring(base64decode("VUlQYWRkaW5n"))(), { PaddingLeft = UDim.new(0, 10), PaddingRight = UDim.new(0, 10) }, searchBox)
-local sortBtn = mk(loadstring(base64decode("VGV4dEJ1dHRvbg=="))(), { AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, 0, 0, 0),
-	Size = UDim2.new(0, 158, 1, 0), BackgroundColor3 = BG, AutoButtonColor = true, Text = loadstring(base64decode("UmVjaWVuIHB1YmxpY2FkbyAgdg=="))(),
+mk("UIPadding", { PaddingLeft = UDim.new(0, 10), PaddingRight = UDim.new(0, 10) }, searchBox)
+local sortBtn = mk("TextButton", { AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, 0, 0, 0),
+	Size = UDim2.new(0, 158, 1, 0), BackgroundColor3 = BG, AutoButtonColor = true, Text = "Recien publicado  v",
 	Font = Enum.Font.GothamMedium, TextSize = 12, TextColor3 = TXT, TextTruncate = Enum.TextTruncate.AtEnd }, barRow)
 round(sortBtn, 8)
 
-local sortList = mk(loadstring(base64decode("RnJhbWU="))(), { LayoutOrder = 2, Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y,
+local sortList = mk("Frame", { LayoutOrder = 2, Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y,
 	BackgroundColor3 = BG, BorderSizePixel = 0, Visible = false }, toolbar)
 round(sortList)
-mk(loadstring(base64decode("VUlQYWRkaW5n"))(), { PaddingTop = UDim.new(0, 6), PaddingBottom = UDim.new(0, 6),
+mk("UIPadding", { PaddingTop = UDim.new(0, 6), PaddingBottom = UDim.new(0, 6),
 	PaddingLeft = UDim.new(0, 6), PaddingRight = UDim.new(0, 6) }, sortList)
-mk(loadstring(base64decode("VUlMaXN0TGF5b3V0"))(), { Padding = UDim.new(0, 4), SortOrder = Enum.SortOrder.LayoutOrder }, sortList)
-label(sortList, { LayoutOrder = 0, Size = UDim2.new(1, 0, 0, 18), Text = loadstring(base64decode("T3JkZW5hciBwb3I6"))(), TextColor3 = MUTED, TextSize = 11 })
-for 92bjRm1O, opt in ipairs(SORTS) do
-	local ob = mk(loadstring(base64decode("VGV4dEJ1dHRvbg=="))(), { LayoutOrder = 92bjRm1O, Size = UDim2.new(1, 0, 0, 28), BackgroundColor3 = BG2,
+mk("UIListLayout", { Padding = UDim.new(0, 4), SortOrder = Enum.SortOrder.LayoutOrder }, sortList)
+label(sortList, { LayoutOrder = 0, Size = UDim2.new(1, 0, 0, 18), Text = "Ordenar por:", TextColor3 = MUTED, TextSize = 11 })
+for i, opt in ipairs(SORTS) do
+	local ob = mk("TextButton", { LayoutOrder = i, Size = UDim2.new(1, 0, 0, 28), BackgroundColor3 = BG2,
 		AutoButtonColor = true, Text = opt[2], Font = Enum.Font.GothamMedium, TextSize = 12, TextColor3 = TXT }, sortList)
 	round(ob, 6)
 	ob.Activated:Connect(function()
 		sortMode = opt[1]
-		sortBtn.Text = opt[2] .. loadstring(base64decode("ICB2"))()
+		sortBtn.Text = opt[2] .. "  v"
 		sortList.Visible = false
 		if renderList then
 			renderList()
@@ -610,7 +624,7 @@ sortBtn.Activated:Connect(function()
 end)
 
 local searchTick = 0
-searchBox:GetPropertyChangedSignal(loadstring(base64decode("VGV4dA=="))()):Connect(function()
+searchBox:GetPropertyChangedSignal("Text"):Connect(function()
 	searchTick = searchTick + 1
 	local t = searchTick
 	task.delay(0.25, function()
@@ -623,17 +637,18 @@ searchBox:GetPropertyChangedSignal(loadstring(base64decode("VGV4dA=="))()):Conne
 	end)
 end)
 
-local listFrame = mk(loadstring(base64decode("RnJhbWU="))(), { LayoutOrder = Feed._nextOrder(), Size = UDim2.new(1, 0, 0, 0),
+local listFrame = mk("Frame", { LayoutOrder = Feed._nextOrder(), Size = UDim2.new(1, 0, 0, 0),
 	AutomaticSize = Enum.AutomaticSize.Y, BackgroundTransparency = 1 }, Feed.Page)
-mk(loadstring(base64decode("VUlMaXN0TGF5b3V0"))(), { Padding = UDim.new(0, 8), SortOrder = Enum.SortOrder.LayoutOrder }, listFrame)
+mk("UIListLayout", { Padding = UDim.new(0, 8), SortOrder = Enum.SortOrder.LayoutOrder }, listFrame)
 
-local detailFrame = mk(loadstring(base64decode("RnJhbWU="))(), { LayoutOrder = Feed._nextOrder(), Size = UDim2.new(1, 0, 0, 0),
+-- Pagina completa de un script (con el chat debajo de todo)
+local detailFrame = mk("Frame", { LayoutOrder = Feed._nextOrder(), Size = UDim2.new(1, 0, 0, 0),
 	AutomaticSize = Enum.AutomaticSize.Y, BackgroundTransparency = 1, Visible = false }, Feed.Page)
-mk(loadstring(base64decode("VUlMaXN0TGF5b3V0"))(), { Padding = UDim.new(0, 8), SortOrder = Enum.SortOrder.LayoutOrder }, detailFrame)
+mk("UIListLayout", { Padding = UDim.new(0, 8), SortOrder = Enum.SortOrder.LayoutOrder }, detailFrame)
 
 local lastPublishSec
 local loading = false
-local startEditScript
+local startEditScript -- se define mas abajo
 local openDetail, closeDetail
 local currentSid
 
@@ -641,9 +656,9 @@ local function fetchCooldown()
 	if not ensureAuth() then
 		return
 	end
-	local code, v = db(loadstring(base64decode("R0VU"))(), loadstring(base64decode("dXNlcnMv"))() .. session.uid .. loadstring(base64decode("L2xhc3RQdWJsaXNo"))())
+	local code, v = db("GET", "users/" .. session.uid .. "/lastPublish")
 	if code == 200 then
-		lastPublishSec = type(v) == loadstring(base64decode("bnVtYmVy"))() and v / 1000 or nil
+		lastPublishSec = type(v) == "number" and v / 1000 or nil
 	end
 end
 
@@ -651,7 +666,7 @@ local loadList
 
 local function clearList()
 	for _, c in ipairs(listFrame:GetChildren()) do
-		if c:IsA(loadstring(base64decode("R3VpT2JqZWN0"))()) then
+		if c:IsA("GuiObject") then
 			c:Destroy()
 		end
 	end
@@ -662,9 +677,9 @@ renderList = function()
 	local q = searchText:lower()
 	local arr = {}
 	for _, d in ipairs(cache) do
-		if q == loadstring(base64decode(""))() or tostring(d.name or loadstring(base64decode(""))()):lower():find(q, 1, true)
-			or tostring(d.ownerName or loadstring(base64decode(""))()):lower():find(q, 1, true)
-			or tostring(d.ownerDisplay or loadstring(base64decode(""))()):lower():find(q, 1, true) then
+		if q == "" or tostring(d.name or ""):lower():find(q, 1, true)
+			or tostring(d.ownerName or ""):lower():find(q, 1, true)
+			or tostring(d.ownerDisplay or ""):lower():find(q, 1, true) then
 			table.insert(arr, d)
 		end
 	end
@@ -678,7 +693,7 @@ renderList = function()
 		return tonumber(d.createdAt) or 0
 	end
 	table.sort(arr, function(a, b)
-		if sortMode == loadstring(base64decode("b2xkZXN0"))() then
+		if sortMode == "oldest" then
 			return created(a) < created(b)
 		end
 		local k = keyOf[sortMode]
@@ -692,10 +707,10 @@ renderList = function()
 	end)
 	if #arr == 0 then
 		label(listFrame, { Size = UDim2.new(1, 0, 0, 40), TextColor3 = MUTED,
-			Text = (#cache == 0) and loadstring(base64decode("QXVuIG5vIGhheSBzY3JpcHRzLiBTZSBlbCBwcmltZXJvIGVuIHB1YmxpY2FyLg=="))() or loadstring(base64decode("Tm8gaGF5IHNjcmlwdHMgY29uIGVzYSBidXNxdWVkYS4="))() })
+			Text = (#cache == 0) and "Aun no hay scripts. Se el primero en publicar." or "No hay scripts con esa busqueda." })
 	end
-	for 92bjRm1O, d in ipairs(arr) do
-		buildCard(listFrame, d, 92bjRm1O, {
+	for i, d in ipairs(arr) do
+		buildCard(listFrame, d, i, {
 			id = d.__id,
 			onOpen = function(dd)
 				openDetail(dd)
@@ -717,16 +732,16 @@ loadList = function()
 	loading = true
 	setLoading(true)
 	local started = os.clock()
-	local code, data = db(loadstring(base64decode("R0VU"))(), loadstring(base64decode("c2NyaXB0cw=="))(), nil, loadstring(base64decode("b3JkZXJCeT0lMjJjcmVhdGVkQXQlMjImbGltaXRUb0xhc3Q9"))() .. LOAD_LIMIT)
+	local code, data = db("GET", "scripts", nil, "orderBy=%22createdAt%22&limitToLast=" .. LOAD_LIMIT)
 	task.wait(math.max(0, 0.8 - (os.clock() - started)))
 	if code ~= 200 then
 		clearList()
-		label(listFrame, { Size = UDim2.new(1, 0, 0, 40), Text = loadstring(base64decode("Tm8gc2UgcHVkbyBjb25lY3RhciAo"))() .. tostring(code) ..
-			loadstring(base64decode("KS4gUmV2aXNhIERCX1VSTCwgQVBJX0tFWSB5IGxhcyByZWdsYXMu"))(), TextColor3 = Color3.fromRGB(255, 120, 120), TextWrapped = true })
+		label(listFrame, { Size = UDim2.new(1, 0, 0, 40), Text = "No se pudo conectar (" .. tostring(code) ..
+			"). Revisa DB_URL, API_KEY y las reglas.", TextColor3 = Color3.fromRGB(255, 120, 120), TextWrapped = true })
 	else
 		cache = {}
-		for id, d in pairs(type(data) == loadstring(base64decode("dGFibGU="))() and data or {}) do
-			if type(d) == loadstring(base64decode("dGFibGU="))() then
+		for id, d in pairs(type(data) == "table" and data or {}) do
+			if type(d) == "table" then
 				d.__id = id
 				table.insert(cache, d)
 			end
@@ -744,10 +759,13 @@ refreshBtn.Activated:Connect(function()
 	end)
 end)
 
+----------------------------------------------------------------------
+-- PAGINA COMPLETA + CHAT DEL SCRIPT
+----------------------------------------------------------------------
 closeDetail = function()
 	currentSid = nil
 	for _, c in ipairs(detailFrame:GetChildren()) do
-		if c:IsA(loadstring(base64decode("R3VpT2JqZWN0"))()) then
+		if c:IsA("GuiObject") then
 			c:Destroy()
 		end
 	end
@@ -764,24 +782,26 @@ openDetail = function(d)
 	toolbar.Visible = false
 	task.delay(30, function()
 		if currentSid == sid then
-			markStat(loadstring(base64decode("dmlld3M="))(), sid)
+			markStat("views", sid)
 		end
 	end)
 	listFrame.Visible = false
 	for _, c in ipairs(detailFrame:GetChildren()) do
-		if c:IsA(loadstring(base64decode("R3VpT2JqZWN0"))()) then
+		if c:IsA("GuiObject") then
 			c:Destroy()
 		end
 	end
 	detailFrame.Visible = true
 
-	local backRow = mk(loadstring(base64decode("RnJhbWU="))(), { LayoutOrder = 1, Size = UDim2.new(1, 0, 0, 32), BackgroundTransparency = 1 }, detailFrame)
-	local back = smallButton(backRow, loadstring(base64decode("PCBWb2x2ZXI="))(), BG, 0, 100)
+	-- 1) Volver
+	local backRow = mk("Frame", { LayoutOrder = 1, Size = UDim2.new(1, 0, 0, 32), BackgroundTransparency = 1 }, detailFrame)
+	local back = smallButton(backRow, "< Volver", BG, 0, 100)
 	back.Size = UDim2.fromOffset(100, 32)
 	back.Activated:Connect(function()
 		closeDetail()
 	end)
 
+	-- 2) La pagina completa del script
 	buildCard(detailFrame, d, 2, {
 		id = sid,
 		full = true,
@@ -795,27 +815,28 @@ openDetail = function(d)
 		end,
 	})
 
-	label(detailFrame, { LayoutOrder = 3, Size = UDim2.new(1, 0, 0, 24), Text = loadstring(base64decode("Q2hhdCBkZSBlc3RlIHNjcmlwdA=="))(),
+	-- 3) Chat debajo de todo
+	label(detailFrame, { LayoutOrder = 3, Size = UDim2.new(1, 0, 0, 24), Text = "Chat de este script",
 		Font = Enum.Font.GothamBold, TextSize = 14 })
-	local chatList = mk(loadstring(base64decode("RnJhbWU="))(), { LayoutOrder = 4, Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y,
+	local chatList = mk("Frame", { LayoutOrder = 4, Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y,
 		BackgroundTransparency = 1 }, detailFrame)
-	mk(loadstring(base64decode("VUlMaXN0TGF5b3V0"))(), { Padding = UDim.new(0, 6), SortOrder = Enum.SortOrder.LayoutOrder }, chatList)
+	mk("UIListLayout", { Padding = UDim.new(0, 6), SortOrder = Enum.SortOrder.LayoutOrder }, chatList)
 
-	local editRow = mk(loadstring(base64decode("RnJhbWU="))(), { LayoutOrder = 5, Size = UDim2.new(1, 0, 0, 28), BackgroundTransparency = 1,
+	local editRow = mk("Frame", { LayoutOrder = 5, Size = UDim2.new(1, 0, 0, 28), BackgroundTransparency = 1,
 		Visible = false }, detailFrame)
-	label(editRow, { Size = UDim2.new(1, -100, 1, 0), Text = loadstring(base64decode("RWRpdGFuZG8gdHUgbWVuc2FqZS4uLg=="))(), TextColor3 = Color3.fromRGB(255, 184, 77) })
-	local cancelEdit = smallButton(editRow, loadstring(base64decode("Q2FuY2VsYXI="))(), Color3.fromRGB(90, 90, 120), 0, 90)
+	label(editRow, { Size = UDim2.new(1, -100, 1, 0), Text = "Editando tu mensaje...", TextColor3 = Color3.fromRGB(255, 184, 77) })
+	local cancelEdit = smallButton(editRow, "Cancelar", Color3.fromRGB(90, 90, 120), 0, 90)
 	cancelEdit.AnchorPoint = Vector2.new(1, 0)
 	cancelEdit.Position = UDim2.new(1, 0, 0, 0)
 
-	local inputRow = mk(loadstring(base64decode("RnJhbWU="))(), { LayoutOrder = 6, Size = UDim2.new(1, 0, 0, 38), BackgroundTransparency = 1 }, detailFrame)
-	local box = mk(loadstring(base64decode("VGV4dEJveA=="))(), { Size = UDim2.new(1, -92, 1, 0), BackgroundColor3 = BG2, BorderSizePixel = 0,
-		Text = loadstring(base64decode(""))(), PlaceholderText = loadstring(base64decode("RXNjcmliZSB1biBtZW5zYWplIChtYXguIDMwMCk="))(), PlaceholderColor3 = MUTED, TextColor3 = TXT,
+	local inputRow = mk("Frame", { LayoutOrder = 6, Size = UDim2.new(1, 0, 0, 38), BackgroundTransparency = 1 }, detailFrame)
+	local box = mk("TextBox", { Size = UDim2.new(1, -92, 1, 0), BackgroundColor3 = BG2, BorderSizePixel = 0,
+		Text = "", PlaceholderText = "Escribe un mensaje (max. 300)", PlaceholderColor3 = MUTED, TextColor3 = TXT,
 		Font = Enum.Font.Gotham, TextSize = 13, ClearTextOnFocus = false, TextXAlignment = Enum.TextXAlignment.Left,
 		TextTruncate = Enum.TextTruncate.None }, inputRow)
 	round(box, 8)
-	mk(loadstring(base64decode("VUlQYWRkaW5n"))(), { PaddingLeft = UDim.new(0, 10), PaddingRight = UDim.new(0, 10) }, box)
-	local send = smallButton(inputRow, loadstring(base64decode("RW52aWFy"))(), Color3.fromRGB(46, 110, 200), 0, 84)
+	mk("UIPadding", { PaddingLeft = UDim.new(0, 10), PaddingRight = UDim.new(0, 10) }, box)
+	local send = smallButton(inputRow, "Enviar", Color3.fromRGB(46, 110, 200), 0, 84)
 	send.AnchorPoint = Vector2.new(1, 0)
 	send.Position = UDim2.new(1, 0, 0, 0)
 	send.Size = UDim2.fromOffset(84, 38)
@@ -828,12 +849,12 @@ openDetail = function(d)
 
 	local function startEditChat(m)
 		editingChatId = m.__id
-		box.Text = tostring(m.text or loadstring(base64decode(""))())
+		box.Text = tostring(m.text or "")
 		editRow.Visible = true
 	end
 	cancelEdit.Activated:Connect(function()
 		editingChatId = nil
-		box.Text = loadstring(base64decode(""))()
+		box.Text = ""
 		editRow.Visible = false
 	end)
 
@@ -842,11 +863,11 @@ openDetail = function(d)
 			return
 		end
 		chatLoading = true
-		local code, data = db(loadstring(base64decode("R0VU"))(), loadstring(base64decode("Y2hhdC8="))() .. sid, nil, loadstring(base64decode("b3JkZXJCeT0lMjJjcmVhdGVkQXQlMjImbGltaXRUb0xhc3Q9NjA="))())
+		local code, data = db("GET", "chat/" .. sid, nil, "orderBy=%22createdAt%22&limitToLast=60")
 		if code == 200 and currentSid == sid and chatList.Parent then
 			local arr = {}
-			for id, m in pairs(type(data) == loadstring(base64decode("dGFibGU="))() and data or {}) do
-				if type(m) == loadstring(base64decode("dGFibGU="))() then
+			for id, m in pairs(type(data) == "table" and data or {}) do
+				if type(m) == "table" then
 					m.__id = id
 					table.insert(arr, m)
 				end
@@ -857,29 +878,29 @@ openDetail = function(d)
 			local parts = {}
 			for _, m in ipairs(arr) do
 				local l, dl = 0, 0
-				for _, v in pairs(type(m.votes) == loadstring(base64decode("dGFibGU="))() and m.votes or {}) do
+				for _, v in pairs(type(m.votes) == "table" and m.votes or {}) do
 					if v == 1 then
 						l = l + 1
 					else
 						dl = dl + 1
 					end
 				end
-				table.insert(parts, m.__id .. tostring(m.text) .. tostring(m.editedAt or loadstring(base64decode(""))()) .. l .. loadstring(base64decode("Og=="))() .. dl)
+				table.insert(parts, m.__id .. tostring(m.text) .. tostring(m.editedAt or "") .. l .. ":" .. dl)
 			end
-			local sig = table.concat(parts, loadstring(base64decode("fA=="))())
+			local sig = table.concat(parts, "|")
 			if force or sig ~= chatSig then
 				chatSig = sig
 				for _, c in ipairs(chatList:GetChildren()) do
-					if c:IsA(loadstring(base64decode("R3VpT2JqZWN0"))()) then
+					if c:IsA("GuiObject") then
 						c:Destroy()
 					end
 				end
 				if #arr == 0 then
-					label(chatList, { Size = UDim2.new(1, 0, 0, 28), Text = loadstring(base64decode("QXVuIG5vIGhheSBtZW5zYWplcy4gRXNjcmliZSBlbCBwcmltZXJvLg=="))(),
+					label(chatList, { Size = UDim2.new(1, 0, 0, 28), Text = "Aun no hay mensajes. Escribe el primero.",
 						TextColor3 = MUTED })
 				end
-				for 92bjRm1O, m in ipairs(arr) do
-					buildChatCard(chatList, m, 92bjRm1O, sid, startEditChat)
+				for i, m in ipairs(arr) do
+					buildChatCard(chatList, m, i, sid, startEditChat)
 				end
 			end
 		end
@@ -890,32 +911,32 @@ openDetail = function(d)
 		if sending then
 			return
 		end
-		local text = box.Text:gsub(loadstring(base64decode("XiVzKw=="))(), loadstring(base64decode(""))()):gsub(loadstring(base64decode("JXMrJA=="))(), loadstring(base64decode(""))())
-		if text == loadstring(base64decode(""))() then
-			return notify(loadstring(base64decode("TWVuc2FqZSB2YWNpbw=="))(), loadstring(base64decode("RXNjcmliZSBhbGdvIHByaW1lcm8u"))())
+		local text = box.Text:gsub("^%s+", ""):gsub("%s+$", "")
+		if text == "" then
+			return notify("Mensaje vacio", "Escribe algo primero.")
 		end
 		if #text > 300 then
-			return notify(loadstring(base64decode("TXV5IGxhcmdv"))(), loadstring(base64decode("TWF4aW1vIDMwMCBjYXJhY3RlcmVzLg=="))())
+			return notify("Muy largo", "Maximo 300 caracteres.")
 		end
 		if not editingChatId and os.clock() - lastSend < 3 then
-			return notify(loadstring(base64decode("RXNwZXJh"))(), loadstring(base64decode("RW52aWEgbWVuc2FqZXMgY29uIDMgc2VndW5kb3MgZGUgZGlmZXJlbmNpYS4="))(), 2)
+			return notify("Espera", "Envia mensajes con 3 segundos de diferencia.", 2)
 		end
 		sending = true
 		task.spawn(function()
 			if not ensureAuth() then
 				sending = false
-				return notify(loadstring(base64decode("RXJyb3I="))(), loadstring(base64decode("Tm8gc2UgcHVkbyBpbmljaWFyIHNlc2lvbiBlbiBGaXJlYmFzZS4="))())
+				return notify("Error", "No se pudo iniciar sesion en Firebase.")
 			end
 			local code
 			if editingChatId then
 				local id = editingChatId
-				code = db(loadstring(base64decode("UEFUQ0g="))(), loadstring(base64decode(""))(), {
-					[loadstring(base64decode("Y2hhdC8="))() .. sid .. loadstring(base64decode("Lw=="))() .. id .. loadstring(base64decode("L3RleHQ="))()] = text,
-					[loadstring(base64decode("Y2hhdC8="))() .. sid .. loadstring(base64decode("Lw=="))() .. id .. loadstring(base64decode("L2VkaXRlZEF0"))()] = NOW,
+				code = db("PATCH", "", {
+					["chat/" .. sid .. "/" .. id .. "/text"] = text,
+					["chat/" .. sid .. "/" .. id .. "/editedAt"] = NOW,
 				})
 			else
 				local id = HttpService:GenerateGUID(false)
-				code = db(loadstring(base64decode("UFVU"))(), loadstring(base64decode("Y2hhdC8="))() .. sid .. loadstring(base64decode("Lw=="))() .. id, {
+				code = db("PUT", "chat/" .. sid .. "/" .. id, {
 					text = text, ownerUid = session.uid, ownerName = me.Name, ownerDisplay = me.DisplayName,
 					ownerUserId = me.UserId, createdAt = NOW,
 				})
@@ -924,10 +945,10 @@ openDetail = function(d)
 			if code == 200 then
 				editingChatId = nil
 				editRow.Visible = false
-				box.Text = loadstring(base64decode(""))()
+				box.Text = ""
 				loadChat(true)
 			else
-				notify(loadstring(base64decode("RXJyb3I="))(), loadstring(base64decode("Tm8gc2UgcHVkbyBlbnZpYXIvZWRpdGFyIChjb2RpZ28g"))() .. tostring(code) .. loadstring(base64decode("KS4="))(), 5)
+				notify("Error", "No se pudo enviar/editar (codigo " .. tostring(code) .. ").", 5)
 			end
 			sending = false
 		end)
@@ -942,38 +963,41 @@ openDetail = function(d)
 	end)
 end
 
-Create:CreateSection(loadstring(base64decode("TnVldm8gc2NyaXB0"))())
-local cooldownLbl = Create:CreateLabel(loadstring(base64decode("Q29tcHJvYmFuZG8uLi4="))())
-local editLbl = Create:CreateLabel(loadstring(base64decode("Tm8gZXN0YXMgZWRpdGFuZG8gbmluZ3VuIHNjcmlwdA=="))())
+----------------------------------------------------------------------
+-- CREAR / EDITAR SCRIPT
+----------------------------------------------------------------------
+Create:CreateSection("Nuevo script")
+local cooldownLbl = Create:CreateLabel("Comprobando...")
+local editLbl = Create:CreateLabel("No estas editando ningun script")
 
-local nameIn = Create:CreateInput({ Name = loadstring(base64decode("Tm9tYnJl"))(), PlaceholderText = loadstring(base64decode("TWF4LiA1MCBjYXJhY3RlcmVz"))(), CurrentValue = loadstring(base64decode(""))() })
-local imgIn = Create:CreateInput({ Name = loadstring(base64decode("SUQgZGUgaW1hZ2Vu"))(), PlaceholderText = loadstring(base64decode("RWo6IDEyMzQ1Njc4OTA="))(), CurrentValue = loadstring(base64decode(""))() })
-local codeIn = Create:CreateCodeInput({ Name = loadstring(base64decode("VGV4dG8gZGVsIHNjcmlwdA=="))(), Height = 200, PlaceholderText = loadstring(base64decode("UGVnYSB0dSBzY3JpcHQgYXF1aS4uLg=="))() })
+local nameIn = Create:CreateInput({ Name = "Nombre", PlaceholderText = "Max. 50 caracteres", CurrentValue = "" })
+local imgIn = Create:CreateInput({ Name = "ID de imagen", PlaceholderText = "Ej: 1234567890", CurrentValue = "" })
+local codeIn = Create:CreateCodeInput({ Name = "Texto del script", Height = 200, PlaceholderText = "Pega tu script aqui..." })
 
-Create:CreateSection(loadstring(base64decode("VmlzdGEgcHJldmlh"))())
-local previewFrame = mk(loadstring(base64decode("RnJhbWU="))(), { LayoutOrder = Create._nextOrder(), Size = UDim2.new(1, 0, 0, 0),
+Create:CreateSection("Vista previa")
+local previewFrame = mk("Frame", { LayoutOrder = Create._nextOrder(), Size = UDim2.new(1, 0, 0, 0),
 	AutomaticSize = Enum.AutomaticSize.Y, BackgroundTransparency = 1 }, Create.Page)
-mk(loadstring(base64decode("VUlMaXN0TGF5b3V0"))(), {}, previewFrame)
+mk("UIListLayout", {}, previewFrame)
 
 local function currentForm()
-	local n = tostring(nameIn.CurrentValue or loadstring(base64decode(""))()):gsub(loadstring(base64decode("XiVzKw=="))(), loadstring(base64decode(""))()):gsub(loadstring(base64decode("JXMrJA=="))(), loadstring(base64decode(""))())
+	local n = tostring(nameIn.CurrentValue or ""):gsub("^%s+", ""):gsub("%s+$", "")
 	return {
 		name = n:sub(1, 50),
-		imageId = (tostring(imgIn.CurrentValue or loadstring(base64decode(""))()):gsub(loadstring(base64decode("JUQ="))(), loadstring(base64decode(""))())):sub(1, 20),
-		script = codeIn:Get() or loadstring(base64decode(""))(),
+		imageId = (tostring(imgIn.CurrentValue or ""):gsub("%D", "")):sub(1, 20),
+		script = codeIn:Get() or "",
 	}
 end
 
 local lastSig
 local function refreshPreview()
 	local f = currentForm()
-	local sig = f.name .. loadstring(base64decode("fA=="))() .. f.imageId .. loadstring(base64decode("fA=="))() .. #f.script .. loadstring(base64decode("fA=="))() .. f.script:sub(1, 400)
+	local sig = f.name .. "|" .. f.imageId .. "|" .. #f.script .. "|" .. f.script:sub(1, 400)
 	if sig == lastSig then
 		return
 	end
 	lastSig = sig
 	for _, c in ipairs(previewFrame:GetChildren()) do
-		if c:IsA(loadstring(base64decode("R3VpT2JqZWN0"))()) then
+		if c:IsA("GuiObject") then
 			c:Destroy()
 		end
 	end
@@ -989,45 +1013,45 @@ local function remaining()
 end
 
 local function formError(f)
-	if f.name == loadstring(base64decode(""))() then
-		return loadstring(base64decode("RmFsdGEgZWwgbm9tYnJl"))(), loadstring(base64decode("RXNjcmliZSB1biBub21icmUgcGFyYSB0dSBzY3JpcHQu"))()
+	if f.name == "" then
+		return "Falta el nombre", "Escribe un nombre para tu script."
 	end
-	if f.script:gsub(loadstring(base64decode("JXM="))(), loadstring(base64decode(""))()) == loadstring(base64decode(""))() then
-		return loadstring(base64decode("RmFsdGEgZWwgc2NyaXB0"))(), loadstring(base64decode("UGVnYSBlbCB0ZXh0byBkZWwgc2NyaXB0Lg=="))()
+	if f.script:gsub("%s", "") == "" then
+		return "Falta el script", "Pega el texto del script."
 	end
 	if #f.script < 10 or not hasRealCode(f.script) then
-		return loadstring(base64decode("U2NyaXB0IGludmFsaWRv"))(), loadstring(base64decode("RGViZSB0ZW5lciBjb2RpZ28gZWplY3V0YWJsZSByZWFsLiBObyBzZSBhY2VwdGFuIHNvbG8gY29tZW50YXJpb3MgbmkgbGV0cmFzIHN1ZWx0YXMu"))()
+		return "Script invalido", "Debe tener codigo ejecutable real. No se aceptan solo comentarios ni letras sueltas."
 	end
 	if #f.script > 50000 then
-		return loadstring(base64decode("TXV5IGxhcmdv"))(), loadstring(base64decode("RWwgc2NyaXB0IG5vIHB1ZWRlIHN1cGVyYXIgNTAuMDAwIGNhcmFjdGVyZXMu"))()
+		return "Muy largo", "El script no puede superar 50.000 caracteres."
 	end
 end
 
 local editingScriptId
 local function clearForm()
-	nameIn:Set(loadstring(base64decode(""))())
-	imgIn:Set(loadstring(base64decode(""))())
-	codeIn:Set(loadstring(base64decode(""))())
+	nameIn:Set("")
+	imgIn:Set("")
+	codeIn:Set("")
 end
 
 startEditScript = function(d)
 	editingScriptId = d.__id
-	nameIn:Set(tostring(d.name or loadstring(base64decode(""))()))
-	imgIn:Set(tostring(d.imageId or loadstring(base64decode(""))()))
-	codeIn:Set(tostring(d.script or loadstring(base64decode(""))()))
-	editLbl:Set('Editando: loadstring(base64decode("JyAuLiB0b3N0cmluZyhkLm5hbWUpIC4uICc="))() - pulsa loadstring(base64decode("R3VhcmRhciBlZGljaW9u"))()')
-	notify(loadstring(base64decode("TW9kbyBlZGljaW9u"))(), 'Ve a loadstring(base64decode("Q3JlYXIgc2NyaXB0"))(), cambia lo que quieras VBSByMbJ pulsa loadstring(base64decode("R3VhcmRhciBlZGljaW9u"))().', 5)
+	nameIn:Set(tostring(d.name or ""))
+	imgIn:Set(tostring(d.imageId or ""))
+	codeIn:Set(tostring(d.script or ""))
+	editLbl:Set('Editando: "' .. tostring(d.name) .. '" - pulsa "Guardar edicion"')
+	notify("Modo edicion", 'Ve a "Crear script", cambia lo que quieras y pulsa "Guardar edicion".', 5)
 end
 
 local publishing = false
 Create:CreateButton({
-	Name = loadstring(base64decode("UHVibGljYXIgc2NyaXB0"))(),
+	Name = "Publicar script",
 	Callback = function()
 		if publishing then
 			return
 		end
 		if editingScriptId then
-			return notify(loadstring(base64decode("RXN0YXMgZWRpdGFuZG8="))(), loadstring(base64decode("R3VhcmRhIG8gY2FuY2VsYSBsYSBlZGljaW9uIGFudGVzIGRlIHB1YmxpY2FyIHVubyBudWV2by4="))())
+			return notify("Estas editando", "Guarda o cancela la edicion antes de publicar uno nuevo.")
 		end
 		local f = currentForm()
 		local et, em = formError(f)
@@ -1035,30 +1059,30 @@ Create:CreateButton({
 			return notify(et, em)
 		end
 		if remaining() > 0 then
-			return notify(loadstring(base64decode("RXNwZXJh"))(), loadstring(base64decode("QXVuIG5vIHBhc2Fyb24gMjQgaG9yYXMgZGVzZGUgdHUgdWx0aW1vIHNjcmlwdC4="))())
+			return notify("Espera", "Aun no pasaron 24 horas desde tu ultimo script.")
 		end
 		publishing = true
 		task.spawn(function()
 			if not ensureAuth() then
 				publishing = false
-				return notify(loadstring(base64decode("RXJyb3I="))(), loadstring(base64decode("Tm8gc2UgcHVkbyBpbmljaWFyIHNlc2lvbiBlbiBGaXJlYmFzZS4gUmV2aXNhIEFQSV9LRVkgeSBxdWUgQXV0aGVudGljYXRpb24gPiBBbm9uaW1vIGVzdGUgYWN0aXZhZG8u"))(), 6)
+				return notify("Error", "No se pudo iniciar sesion en Firebase. Revisa API_KEY y que Authentication > Anonimo este activado.", 6)
 			end
 			local id = HttpService:GenerateGUID(false)
-			local code = db(loadstring(base64decode("UEFUQ0g="))(), loadstring(base64decode(""))(), {
-				[loadstring(base64decode("c2NyaXB0cy8="))() .. id] = {
+			local code = db("PATCH", "", {
+				["scripts/" .. id] = {
 					name = f.name, script = f.script, imageId = f.imageId,
 					ownerUid = session.uid, ownerName = me.Name, ownerDisplay = me.DisplayName,
 					ownerUserId = me.UserId, createdAt = NOW,
 				},
-				[loadstring(base64decode("dXNlcnMv"))() .. session.uid .. loadstring(base64decode("L2xhc3RQdWJsaXNo"))()] = NOW,
+				["users/" .. session.uid .. "/lastPublish"] = NOW,
 			})
 			if code == 200 then
-				notify(loadstring(base64decode("UHVibGljYWRv"))(), loadstring(base64decode("VHUgc2NyaXB0IHlhIGVzdGEgZW4gbGEgY29tdW5pZGFkLg=="))(), 4)
+				notify("Publicado", "Tu script ya esta en la comunidad.", 4)
 				clearForm()
 				fetchCooldown()
 				loadList()
 			else
-				notify(loadstring(base64decode("Tm8gc2UgcHVkbyBwdWJsaWNhcg=="))(), loadstring(base64decode("Q29kaWdvIA=="))() .. tostring(code) .. loadstring(base64decode("LiBQdWVkZSBxdWUgbm8gaGF5YW4gcGFzYWRvIDI0IGggbyBsYXMgcmVnbGFzIGxvIHJlY2hhemFyb24u"))(), 6)
+				notify("No se pudo publicar", "Codigo " .. tostring(code) .. ". Puede que no hayan pasado 24 h o las reglas lo rechazaron.", 6)
 			end
 			publishing = false
 		end)
@@ -1066,13 +1090,13 @@ Create:CreateButton({
 })
 
 Create:CreateButton({
-	Name = loadstring(base64decode("R3VhcmRhciBlZGljaW9u"))(),
+	Name = "Guardar edicion",
 	Callback = function()
 		if publishing then
 			return
 		end
 		if not editingScriptId then
-			return notify(loadstring(base64decode("U2luIGVkaWNpb24="))(), 'Pulsa loadstring(base64decode("RWRpdGFy"))() en uno de tus scripts primero.')
+			return notify("Sin edicion", 'Pulsa "Editar" en uno de tus scripts primero.')
 		end
 		local f = currentForm()
 		local et, em = formError(f)
@@ -1082,20 +1106,20 @@ Create:CreateButton({
 		publishing = true
 		task.spawn(function()
 			local id = editingScriptId
-			local code = db(loadstring(base64decode("UEFUQ0g="))(), loadstring(base64decode(""))(), {
-				[loadstring(base64decode("c2NyaXB0cy8="))() .. id .. loadstring(base64decode("L25hbWU="))()] = f.name,
-				[loadstring(base64decode("c2NyaXB0cy8="))() .. id .. loadstring(base64decode("L3NjcmlwdA=="))()] = f.script,
-				[loadstring(base64decode("c2NyaXB0cy8="))() .. id .. loadstring(base64decode("L2ltYWdlSWQ="))()] = f.imageId,
-				[loadstring(base64decode("c2NyaXB0cy8="))() .. id .. loadstring(base64decode("L2VkaXRlZEF0"))()] = NOW,
+			local code = db("PATCH", "", {
+				["scripts/" .. id .. "/name"] = f.name,
+				["scripts/" .. id .. "/script"] = f.script,
+				["scripts/" .. id .. "/imageId"] = f.imageId,
+				["scripts/" .. id .. "/editedAt"] = NOW,
 			})
 			if code == 200 then
-				notify(loadstring(base64decode("RWRpdGFkbw=="))(), loadstring(base64decode("VHUgc2NyaXB0IHNlIGFjdHVhbGl6by4="))(), 4)
+				notify("Editado", "Tu script se actualizo.", 4)
 				editingScriptId = nil
-				editLbl:Set(loadstring(base64decode("Tm8gZXN0YXMgZWRpdGFuZG8gbmluZ3VuIHNjcmlwdA=="))())
+				editLbl:Set("No estas editando ningun script")
 				clearForm()
 				loadList()
 			else
-				notify(loadstring(base64decode("Tm8gc2UgcHVkbyBlZGl0YXI="))(), loadstring(base64decode("Q29kaWdvIA=="))() .. tostring(code) .. loadstring(base64decode("LiBTb2xvIHB1ZWRlcyBlZGl0YXIgdHVzIHByb3Bpb3Mgc2NyaXB0cy4="))(), 6)
+				notify("No se pudo editar", "Codigo " .. tostring(code) .. ". Solo puedes editar tus propios scripts.", 6)
 			end
 			publishing = false
 		end)
@@ -1103,23 +1127,26 @@ Create:CreateButton({
 })
 
 Create:CreateButton({
-	Name = loadstring(base64decode("Q2FuY2VsYXIgZWRpY2lvbg=="))(),
+	Name = "Cancelar edicion",
 	Callback = function()
 		if editingScriptId then
 			editingScriptId = nil
-			editLbl:Set(loadstring(base64decode("Tm8gZXN0YXMgZWRpdGFuZG8gbmluZ3VuIHNjcmlwdA=="))())
+			editLbl:Set("No estas editando ningun script")
 			clearForm()
 		end
 	end,
 })
 
+----------------------------------------------------------------------
+-- BUCLES
+----------------------------------------------------------------------
 task.spawn(function()
 	while SpaceHub._window == winRef do
 		local r = remaining()
 		if r > 0 then
-			cooldownLbl:Set(string.format(loadstring(base64decode("UG9kcmFzIHB1YmxpY2FyIG90cm8gc2NyaXB0IGVuICUwMmQ6JTAyZDolMDJk"))(), r // 3600, (r % 3600) // 60, r % 60))
+			cooldownLbl:Set(string.format("Podras publicar otro script en %02d:%02d:%02d", r // 3600, (r % 3600) // 60, r % 60))
 		else
-			cooldownLbl:Set(loadstring(base64decode("WWEgcHVlZGVzIHB1YmxpY2FyIHVuIHNjcmlwdA=="))())
+			cooldownLbl:Set("Ya puedes publicar un script")
 		end
 		pcall(refreshPreview)
 		task.wait(0.5)
@@ -1134,6 +1161,3 @@ task.spawn(function()
 		task.wait(30)
 	end
 end)
-end
-QbjGuqB2(GtuxG)
-end)(...)
